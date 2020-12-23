@@ -12,7 +12,8 @@ import LegacyBaseTopFilterGroup from './LegacyBaseTopFilterGroup';
 
 const propTypes = {
     filter: PropTypes.object,
-    redux: PropTypes.object
+    redux: PropTypes.object,
+    latestFy: PropTypes.object
 };
 
 export default class TimePeriodFYFilterGroup extends React.Component {
@@ -52,15 +53,15 @@ export default class TimePeriodFYFilterGroup extends React.Component {
 
         // determine how many fiscal years there are available to select
         // add an extra year at the end to include the current year in the count
-        const allFY = (FiscalYearHelper.defaultFiscalYear() - FiscalYearHelper.earliestFiscalYear)
-            + 1;
+        const allFY = this.props.latestFy
+            ? (this.props.latestFy.year() - FiscalYearHelper.earliestFiscalYear) + 1
+            : 0;
 
         // check if all fiscal years were selected
         if (selectedValues.length === allFY) {
             const tag = {
                 value: 'all',
                 title: 'All Fiscal Years',
-                isSpecial: true,
                 removeFilter: this.clearGroup
             };
 
@@ -72,7 +73,6 @@ export default class TimePeriodFYFilterGroup extends React.Component {
                 const tag = {
                     value,
                     title: `FY ${value}`,
-                    isSpecial: false,
                     removeFilter: this.removeFilter
                 };
 

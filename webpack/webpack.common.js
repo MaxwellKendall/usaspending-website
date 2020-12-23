@@ -10,13 +10,14 @@ const gitRevisionPlugin = new GitRevisionPlugin({ branch: true }); // 'rev-parse
 
 console.log("Commit Hash for this build: ", gitRevisionPlugin.commithash());
 console.log("Branch for this build: ", gitRevisionPlugin.branch());
+console.log("GA_TRACKING_ID", process.env.GA_TRACKING_ID);
 
 module.exports = {
     entry: {
         app: "./index.js"
     },
     output: {
-    // https://webpack.js.org/guides/caching/
+        // https://webpack.js.org/guides/caching/
         publicPath: "/",
         filename: "[name].[contenthash].js",
         path: path.resolve(__dirname, "../public")
@@ -55,7 +56,7 @@ module.exports = {
         rules: [
             {
                 test: /\.js$|jsx$/,
-                exclude: /node_modules\/(?!(data-transparency-ui)\/).*/,
+                exclude: /node_modules\.*/,
                 loader: "babel-loader"
             },
             {
@@ -70,7 +71,7 @@ module.exports = {
                 ]
             },
             {
-                include: /\.(eot|ttf|woff|woff2|png|svg|ico|gif|jpg)$/,
+                include: /\.(eot|ttf|woff|woff2|png|svg|ico|gif|jpg|pdf)$/,
                 loader: 'file-loader',
                 query: {
                     name: '[path][name].[ext]'
@@ -92,8 +93,17 @@ module.exports = {
         }),
         new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, "../src/index.html"),
-            chunksSortMode: "none"
+            template: path.resolve(__dirname, "../src/index.ejs"),
+            chunksSortMode: "none",
+            templateParameters: {
+                GA_TRACKING_ID: process.env.GA_TRACKING_ID || '',
+                USE_GTM: (
+                    process.env.ENV === 'dev' ||
+                    process.env.ENV === 'qat' ||
+                    process.env.ENV === 'sandbox'
+                ),
+                GTM_ID: process.env.GTM_ID || ''
+            }
         }),
         new MiniCssExtractPlugin({
             filename: "[name].[contenthash].css"
@@ -110,6 +120,13 @@ module.exports = {
                 to: path.resolve(__dirname, "../public"),
                 context: path.resolve(__dirname, '../')
             }
-        ])
+        ]),
+        new webpack.DefinePlugin({
+            'process.env': {
+                ENV: process.env.ENV
+                    ? JSON.stringify(process.env.ENV)
+                    : JSON.stringify('dev')
+            }
+        })
     ]
 };

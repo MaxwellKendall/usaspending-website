@@ -6,7 +6,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 
-import BaseContractTransaction from 'models/v2/awards/transactions/BaseContractTransaction';
+import BaseContractTransaction from 'models/v2/award/transactions/BaseContractTransaction';
 import { TransactionsTableContainer } from 'containers/award/table/TransactionsTableContainer';
 
 import mockContractTransaction from '../mockContractTransaction';
@@ -21,7 +21,7 @@ jest.mock('components/award/table/TransactionsTable', () =>
 
 // force Jest to use native Node promises
 // see: https://facebook.github.io/jest/docs/troubleshooting.html#unresolved-promises
-global.Promise = require.requireActual('promise');
+global.Promise = jest.requireActual('promise');
 
 const mockRedux = {
     award:

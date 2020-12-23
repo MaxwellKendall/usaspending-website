@@ -1,8 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Cookies from 'js-cookie';
+import { Link } from 'react-router-dom';
 
 import GlossaryContainer from 'containers/glossary/GlossaryContainer';
-import RedirectModalContainer from 'containers/redirectModal/RedirectModalContainer';
+import GlobalModalContainer from 'containers/globalModal/GlobalModalContainer';
 import Analytics from 'helpers/analytics/Analytics';
 
 import InfoBanner from './InfoBanner';
@@ -15,7 +17,7 @@ const clickedHeaderLink = (route) => {
     });
 };
 
-export const twentyNineteenFiscalDataCookie = 'usaspending_2019_fiscal_data';
+export const CovidHomepageCookie = 'usaspending_covid_release';
 
 export default class Header extends React.Component {
     constructor(props) {
@@ -27,10 +29,14 @@ export default class Header extends React.Component {
         // bind functions
         this.skippedNav = this.skippedNav.bind(this);
         this.closeBanner = this.closeBanner.bind(this);
+        this.openCovidModalContainer = this.openCovidModalContainer.bind(this);
     }
-    componentWillMount() {
+    componentDidMount() {
+        this.setShowInfoBanner();
+    }
+    setShowInfoBanner() {
         // check if the info banner cookie exists
-        if (!Cookies.get(twentyNineteenFiscalDataCookie)) {
+        if (!Cookies.get(CovidHomepageCookie)) {
             // cookie does not exist, show the banner
             this.setState({
                 showInfoBanner: true
@@ -58,9 +64,15 @@ export default class Header extends React.Component {
         });
     }
 
+    openCovidModalContainer(e) {
+        e.preventDefault();
+        this.props.showModal(null, 'covid');
+    }
+
     render() {
         let infoBanner = (
             <InfoBanner
+                triggerModal={this.openCovidModalContainer}
                 closeBanner={this.closeBanner} />
         );
 
@@ -83,13 +95,25 @@ export default class Header extends React.Component {
                         role="note">
                         <ul
                             className="official-banner__site-list">
-                            <li
-                                className="official-banner__site-item">
-                                <a
+                            <li>
+                                <Link
                                     className="official-banner__site-link"
-                                    href="https://www.usaspending.gov"
+                                    to="/"
                                     onClick={clickedHeaderLink.bind(null, 'https:/www.usaspending.gov')}>
                                     USAspending.gov
+                                </Link>
+                            </li>
+                            <li
+                                className="official-banner__site-item official-banner__site-item_spacer"
+                                aria-hidden="true">
+                                |
+                            </li>
+                            <li>
+                                <a
+                                    className="official-banner__site-link"
+                                    href="https://datalab.usaspending.gov"
+                                    onClick={clickedHeaderLink.bind(null, 'https://datalab.usaspending.gov')}>
+                                    Data Lab
                                 </a>
                             </li>
                             <li
@@ -97,13 +121,12 @@ export default class Header extends React.Component {
                                 aria-hidden="true">
                                 |
                             </li>
-                            <li
-                                className="official-banner__site-item">
+                            <li>
                                 <a
                                     className="official-banner__site-link"
-                                    href="https://datalab.usaspending.gov"
-                                    onClick={clickedHeaderLink.bind(null, 'https://datalab.usaspending.gov')}>
-                                    Data Lab
+                                    href="http://fiscaldata.treasury.gov/"
+                                    onClick={clickedHeaderLink.bind(null, 'http://fiscaldata.treasury.gov')}>
+                                    Fiscal Data
                                 </a>
                             </li>
                         </ul>
@@ -121,8 +144,12 @@ export default class Header extends React.Component {
                     <NavBar />
                 </header>
                 <GlossaryContainer />
-                <RedirectModalContainer />
+                <GlobalModalContainer />
             </div>
         );
     }
 }
+
+Header.propTypes = {
+    showModal: PropTypes.func
+};

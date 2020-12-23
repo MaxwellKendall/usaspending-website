@@ -6,10 +6,11 @@
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookSquare, faLinkedin, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 
-import { showModal } from 'redux/actions/redirectModal/redirectModalActions';
+import { showModal } from 'redux/actions/modal/modalActions';
 
 import Analytics from 'helpers/analytics/Analytics';
 import GlossaryButtonWrapperContainer from 'containers/glossary/GlossaryButtonWrapperContainer';
@@ -17,9 +18,9 @@ import DownloadBottomBarContainer from
     'containers/search/modals/fullDownload/DownloadBottomBarContainer';
 import BulkDownloadBottomBarContainer from
     'containers/bulkDownload/modal/BulkDownloadBottomBarContainer';
-import FloatingGlossaryButton from '../components/sharedComponents/FloatingGlossaryButton';
-import FooterExternalLink from '../components/sharedComponents/FooterExternalLink';
-import Subscribe from '../components/sharedComponents/Subscribe';
+import FloatingGlossaryButton from 'components/sharedComponents/FloatingGlossaryButton';
+import FooterExternalLink from 'components/sharedComponents/FooterExternalLink';
+import Subscribe from 'components/sharedComponents/Subscribe';
 
 const propTypes = {
     filters: PropTypes.object,
@@ -55,13 +56,13 @@ const Footer = ({
                 aria-label="Footer">
                 <div className="footer-container">
                     <div className="footer-logo">
-                        <a
-                            href="#/"
+                        <Link
+                            to="/"
                             title="USAspending.gov Home"
                             aria-label="USAspending.gov Home"
                             onClick={clickedFooterLink.bind(null, '/')}>
                             <img src="img/footer_logo.png" alt="USAspending.gov" />
-                        </a>
+                        </Link>
                     </div>
                     <div className="footer-links">
                         <div className="link-group">
@@ -70,11 +71,18 @@ const Footer = ({
                             </div>
                             <ul className="links">
                                 <li>
-                                    <a
-                                        href="#/about"
+                                    <Link
+                                        to="/about"
                                         onClick={clickedFooterLink.bind(null, '/about')}>
                                         About USAspending
-                                    </a>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        to={{ pathname: '/about', state: { fromCareersLink: true } }}
+                                        onClick={clickedFooterLink.bind(null, '/about')}>
+                                        Careers
+                                    </Link>
                                 </li>
                             </ul>
                         </div>
@@ -111,6 +119,11 @@ const Footer = ({
                             </div>
                             <ul className="links">
                                 <li>
+                                    <Link to="/download_center/data_dictionary">
+                                        Data Dictionary
+                                    </Link>
+                                </li>
+                                <li>
                                     <FooterExternalLink
                                         link="https://fiscal.treasury.gov/data-transparency/DAIMS-current.html"
                                         title="Data Model" />
@@ -121,9 +134,9 @@ const Footer = ({
                                         title="Data Lab" />
                                 </li>
                                 <li>
-                                    <a href="/#/download_center/data_dictionary">
-                                        Data Dictionary
-                                    </a>
+                                    <FooterExternalLink
+                                        link="http://fiscaldata.treasury.gov/"
+                                        title="Fiscal Data" />
                                 </li>
                             </ul>
                         </div>
@@ -147,46 +160,46 @@ const Footer = ({
                     </div>
                     <ul className="legal-and-social-links">
                         <li className="copyright__legal-item">
-                            <a
+                            <Link
                                 className="copyright__link"
-                                href="#/about/accessibility"
+                                to="/about/accessibility"
                                 onClick={clickedFooterLink.bind(null, '/about/accessibility')}>
                                 Accessibility
-                            </a>
+                            </Link>
                         </li>
                         <li className="copyright__legal-item">
-                            <a
+                            <Link
                                 className="copyright__link"
-                                href="#/about/privacy"
+                                to="/about/privacy"
                                 onClick={clickedFooterLink.bind(null, '/about/privacy')}>
                                 Privacy Policy
-                            </a>
+                            </Link>
                         </li>
                         <li className="copyright__legal-item">
-                            <a
+                            <Link
                                 className="copyright__link"
-                                href="#/about/foia"
+                                to="/about/foia"
                                 onClick={clickedFooterLink.bind(null, '/about/foia')}>
                                 Freedom of Information Act
-                            </a>
+                            </Link>
                         </li>
                         <li className="social-link">
-                            <button onClick={generateOnClick("https://twitter.com/usaspending/")}>
+                            <button onClick={generateOnClick("https://twitter.com/usaspending/")} title="Twitter">
                                 <FontAwesomeIcon icon={faTwitter} size="1x" color="#D4D4D4" />
                             </button>
                         </li>
                         <li className="social-link">
-                            <button onClick={generateOnClick("https://www.facebook.com/fiscalservice/")}>
+                            <button onClick={generateOnClick("https://www.facebook.com/fiscalservice/")} title="Facebook">
                                 <FontAwesomeIcon icon={faFacebookSquare} size="1x" color="#D4D4D4" />
                             </button>
                         </li>
                         <li className="social-link">
-                            <button onClick={generateOnClick("https://github.com/fedspendingtransparency/usaspending-website")}>
+                            <button onClick={generateOnClick("https://github.com/fedspendingtransparency/usaspending-website")} title="Github">
                                 <FontAwesomeIcon icon={faGithub} size="1x" color="#D4D4D4" />
                             </button>
                         </li>
                         <li className="social-link">
-                            <button onClick={generateOnClick("https://www.linkedin.com/company/united-states-department-of-the-treasury-bureau-of-public-debt/")}>
+                            <button onClick={generateOnClick("https://www.linkedin.com/company/united-states-department-of-the-treasury-bureau-of-public-debt/")} title="LinkedIn">
                                 <FontAwesomeIcon icon={faLinkedin} size="1x" color="#D4D4D4" />
                             </button>
                         </li>
@@ -199,7 +212,7 @@ const Footer = ({
                         </div>
                     </div>
                     <div className="copyright__db">
-                        <strong>NOTE:</strong> You must <a href="#/db_info" target="_blank" rel="noopener noreferrer" title="Limitation on Permissible Use of Dun & Bradstreet, Inc. (D&B) Data" aria-label="Limitation on Permissible Use of Dun & Bradstreet, Inc. (D&B) Data" onClick={clickedFooterLink.bind(null, '/db_info')}>click here</a> for very important D&amp;B information.
+                        <strong>NOTE:</strong> You must <Link to="/db_info" target="_blank" rel="noopener noreferrer" title="Limitation on Permissible Use of Dun & Bradstreet, Inc. (D&B) Data" aria-label="Limitation on Permissible Use of Dun & Bradstreet, Inc. (D&B) Data" onClick={clickedFooterLink.bind(null, '/db_info')}>click here</Link> for very important D&amp;B information.
                     </div>
                 </div>
             </footer>

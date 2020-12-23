@@ -16,7 +16,8 @@ module.exports = merge(common, {
         contentBase: path.resolve(__dirname, "public"),
         host: "0.0.0.0", // this allows VMs to access the server
         port: 3000,
-        disableHostCheck: true
+        disableHostCheck: true,
+        historyApiFallback: true
     },
     module: {
         rules: [
@@ -41,14 +42,10 @@ module.exports = merge(common, {
             'process.env': {
                 USASPENDING_API: process.env.USASPENDING_API
                     ? JSON.stringify(process.env.USASPENDING_API)
-                    : JSON.stringify("http://localhost:8000/api/"),
+                    : JSON.stringify("https://api.usaspending.gov/api/"),
                 MAPBOX_TOKEN: process.env.MAPBOX_TOKEN
                     ? JSON.stringify(process.env.MAPBOX_TOKEN)
-                    : JSON.stringify(""),
-                GA_TRACKING_ID: process.env.GA_TRACKING_ID
-                    ? JSON.stringify(process.env.GA_TRACKING_ID)
-                    : JSON.stringify("UA-143401688-1"),
-                IS_DEV: JSON.stringify('true')
+                    : JSON.stringify("")
             }
         })
     ]

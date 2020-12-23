@@ -17,10 +17,16 @@ import agencyLandingReducer from './agencyLanding/agencyLandingReducer';
 import recipientReducer from './recipient/recipientReducer';
 import downloadReducer from './search/downloadReducer';
 import bulkDownloadReducer from './bulkDownload/bulkDownloadReducer';
-import redirectModalReducer from './redirectModal/redirectModalReducer';
+import modalReducer from './modal/modalReducer';
 import stateReducer from './state/stateReducer';
 import searchSubAwardTableReducer from './search/searchSubAwardTableReducer';
-import naicsReducer from './search/naicsReducer/naicsReducer';
+import naicsReducer from './search/naicsReducer';
+import tasReducer from './search/tasReducer';
+import pscReducer from './search/pscReducer';
+import mapLegendToggleReducer from './search/mapLegendToggleReducer';
+import agencyV2Reducer from './agencyV2/agencyV2Reducer';
+import covid19Reducer from './covid19/covid19Reducer';
+import aboutTheDataReducer from './aboutTheData';
 
 const appReducer = combineReducers({
     filters: filtersReducer,
@@ -35,10 +41,20 @@ const appReducer = combineReducers({
     recipient: recipientReducer,
     explorer: explorerReducer,
     bulkDownload: bulkDownloadReducer,
-    redirectModal: redirectModalReducer,
+    modal: modalReducer,
     stateProfile: stateReducer,
     searchSubAwardTable: searchSubAwardTableReducer,
-    naics: naicsReducer
+    // tas/naics/psc filters are outside of redux.filter keyspace b/c
+    // the expand/collapse of this filter is required to load
+    // the tree & it cannot populated the correct user selections without the data.
+    // Nesting it inside filters would be a bad idea.
+    naics: naicsReducer,
+    tas: tasReducer,
+    psc: pscReducer,
+    searchMapLegendToggle: mapLegendToggleReducer,
+    agencyV2: agencyV2Reducer,
+    covid19: covid19Reducer,
+    aboutTheData: aboutTheDataReducer
 });
 
 export default appReducer;

@@ -14,24 +14,30 @@ const propTypes = {
     jumpToSubAwardHistoryTable: PropTypes.func,
     setRelatedAwardsTab: PropTypes.func,
     jumpToSection: PropTypes.func,
-    counts: PropTypes.object,
-    overview: PropTypes.object
+    details: PropTypes.object,
+    overview: PropTypes.object,
+    updateCFDAOverviewLinkClicked: PropTypes.func
 };
 
 const AwardOverviewRightSection = ({
     jumpToSubAwardHistoryTable,
     setRelatedAwardsTab,
     jumpToSection,
-    counts,
-    overview
+    details,
+    overview,
+    updateCFDAOverviewLinkClicked
 }) => {
     const firstSection = (overview.category !== 'idv' && overview.category !== 'contract') ?
-        (<CFDAOverview cfdaPropgram={overview.cfdaProgram} />) :
+        (<CFDAOverview
+            cfdaProgram={overview.cfdaProgram}
+            cfdaCount={overview.cfdaList.length}
+            jumpToSection={jumpToSection}
+            updateCFDAOverviewLinkClicked={updateCFDAOverviewLinkClicked} />) :
         (<RelatedAwards
             jumpToSubAwardHistoryTable={jumpToSubAwardHistoryTable}
             setRelatedAwardsTab={setRelatedAwardsTab}
             jumpToSection={jumpToSection}
-            counts={counts}
+            details={details}
             overview={overview} />);
     const dates = overview.category === 'idv' ? overview.dates : overview.periodOfPerformance;
     return (

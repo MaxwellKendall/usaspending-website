@@ -7,6 +7,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { formatNumber } from 'helpers/moneyFormatter';
+import { createOnKeyDownHandler } from 'helpers/keyboardEventsHelper';
 
 const propTypes = {
     label: PropTypes.string,
@@ -16,7 +17,8 @@ const propTypes = {
     enabled: PropTypes.bool,
     switchTab: PropTypes.func,
     hideCounts: PropTypes.bool,
-    className: PropTypes.string
+    className: PropTypes.string,
+    tooltip: PropTypes.element
 };
 
 export default class ResultsTableTabItem extends React.Component {
@@ -33,14 +35,20 @@ export default class ResultsTableTabItem extends React.Component {
     render() {
         let activeClass = '';
         let disabledStatus = '';
+        let disabledClass = '';
         if (this.props.active) {
             activeClass = ' active';
         }
         if (this.props.enabled === false) {
             disabledStatus = true;
+            disabledClass = ' disabled';
         }
-        else {
+        else if (!this.props.hideCounts && (!this.props.count || this.props.count === 0)) {
+            disabledStatus = true;
+            disabledClass = ' disabled';
+        } else {
             disabledStatus = false;
+            disabledClass = '';
         }
 
         let resultString = 'results';
@@ -56,23 +64,29 @@ export default class ResultsTableTabItem extends React.Component {
                 </div>
             );
         }
-        const className = `table-type-toggle${activeClass} ${this.props.className}`;
+        const className = `table-type-toggle${activeClass} ${this.props.className}${disabledClass}`;
+        const onKeyDownHandler = createOnKeyDownHandler(this.clickedTab);
         return (
-            <button
-                className={className}
-                onClick={this.clickedTab}
-                role="menuitemradio"
-                aria-checked={this.props.active}
-                title={`Show ${this.props.label}`}
-                aria-label={`Show ${this.props.label} - ${this.props.count} ${resultString}`}
-                disabled={disabledStatus}>
-                <div className="tab-content">
-                    <div className="tab-label">
-                        {this.props.label}
+            <div className={`table-type-toggle__wrapper${disabledClass}`}>
+                <div
+                    className={className}
+                    onClick={this.clickedTab}
+                    onKeyDown={onKeyDownHandler}
+                    role="menuitemradio"
+                    aria-checked={this.props.active}
+                    title={`Show ${this.props.label}`}
+                    aria-label={`Show ${this.props.label} - ${this.props.count} ${resultString}`}
+                    tabIndex={0}
+                    disabled={disabledStatus}>
+                    <div className="tab-content">
+                        <div className="tab-label">
+                            {this.props.label}
+                        </div>
+                        {count}
+                        {this.props.tooltip}
                     </div>
-                    {count}
                 </div>
-            </button>
+            </div>
         );
     }
 }

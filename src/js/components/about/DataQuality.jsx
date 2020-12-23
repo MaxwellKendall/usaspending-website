@@ -30,20 +30,18 @@ export default class DataQuality extends React.Component {
                     <h3>How we achieve this:</h3>
                 </div>
                 <div className="about-section-content">
+                    <p><strong>Agency Quarterly Data Certification</strong></p>
                     <ul>
                         <li>
-                            <span className="about-section-list-item-title">
-                                Agency Quarterly Data Certification
-                            </span>
                             Every agency has a Senior Accountable Official who must officially
                             certify that the quarterly financial data submitted by their agency
                             is accurate and complete. The agency&apos;s data is published on
                             USAspending.gov only after it has been certified.
                         </li>
+                    </ul>
+                    <p><strong>Data Validation</strong></p>
+                    <ul>
                         <li>
-                            <span className="about-section-list-item-title">
-                                Data Validation
-                            </span>
                             Every grant, loan, direct payment, and other financial assistance
                             record submitted to the Financial Assistance Broker Submission
                             system must pass a series of validations before the data is
@@ -56,7 +54,7 @@ export default class DataQuality extends React.Component {
                         <a
                             target="_blank"
                             rel="noopener noreferrer"
-                            href="https://sam.gov/SAM/transcript/FY2012-2018_govt-wide_procurement_data_quality_summary.pdf">
+                            href="https://sam.gov/SAM/transcript/govt-wide_procurement_data_quality_summary.pdf">
                             Federal Government Procurement Data Quality Summary
                         </a>
                         &nbsp;about data submitted by the agencies to the Federal Procurement
@@ -65,7 +63,7 @@ export default class DataQuality extends React.Component {
                         raw quarterly submission files, including Quarterly Assurance Statements from Senior Accountable Officials of each agency about known data quality issues, are&nbsp;
                         <a
                             target="_blank"
-                            href={`https://files${kGlobalConstants.DEV ? '-nonprod' : ''}.usaspending.gov/agency_submissions/`}
+                            href={`${kGlobalConstants.FILES_SERVER_BASE_URL}/agency_submissions/`}
                             rel="noopener noreferrer"
                             aria-label="Raw quarterly submission files">
                             available here

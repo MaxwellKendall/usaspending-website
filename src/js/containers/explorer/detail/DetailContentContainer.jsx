@@ -9,9 +9,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isCancel } from 'axios';
 import { List } from 'immutable';
+import { withRouter } from 'react-router-dom';
 
 import Analytics from 'helpers/analytics/Analytics';
-import Router from 'containers/router/Router';
 
 import { dropdownScopes } from 'dataMapping/explorer/dropdownScopes';
 
@@ -30,7 +30,8 @@ const propTypes = {
     addExplorerTrail: PropTypes.func,
     showTooltip: PropTypes.func,
     hideTooltip: PropTypes.func,
-    resetExplorerTable: PropTypes.func
+    resetExplorerTable: PropTypes.func,
+    history: PropTypes.object
 };
 
 export class DetailContentContainer extends React.Component {
@@ -56,33 +57,39 @@ export class DetailContentContainer extends React.Component {
     }
 
     componentDidMount() {
-        this.prepareRootRequest(
-            this.props.explorer.root,
-            this.props.explorer.fy,
-            this.props.explorer.quarter
-        );
+        if (this.props.explorer.fy && (this.props.explorer.period || this.props.explorer.quarter)) {
+            this.prepareRootRequest(
+                this.props.explorer.root,
+                this.props.explorer.fy,
+                this.props.explorer.quarter,
+                this.props.explorer.period
+            );
+        }
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.explorer.root !== this.props.explorer.root ||
             prevProps.explorer.fy !== this.props.explorer.fy ||
-            prevProps.explorer.quarter !== this.props.explorer.quarter) {
+            prevProps.explorer.quarter !== this.props.explorer.quarter ||
+            prevProps.explorer.period !== this.props.explorer.period) {
             // root changed, reload everything
             this.prepareRootRequest(
                 this.props.explorer.root,
                 this.props.explorer.fy,
-                this.props.explorer.quarter
+                this.props.explorer.quarter,
+                this.props.explorer.period
             );
         }
     }
 
-    prepareRootRequest(rootType, fy, quarter) {
+    prepareRootRequest(rootType, fy, quarter, period) {
         // we need to make a root request
         // at the root level, ignore all filters except for the root
         // in fact, just to be safe, let's overwrite the filter props
         const resetFilters = {
             fy,
-            quarter
+            quarter,
+            period
         };
 
         // make the request
@@ -113,13 +120,24 @@ export class DetailContentContainer extends React.Component {
             this.request.cancel();
         }
 
+        if (!this.props.explorer.fy || (!this.props.explorer.period && !this.props.explorer.quarter)) {
+            return Promise.resolve();
+        }
+
         // perform the API request
+        const requestFilters = Object.assign({}, this.state.filters);
+        if (requestFilters.quarter == null) {
+            delete requestFilters.quarter;
+        }
+        if (requestFilters.period == null) {
+            delete requestFilters.period;
+        }
         this.request = ExplorerHelper.fetchBreakdown({
             type: request.subdivision,
-            filters: this.state.filters
+            filters: requestFilters
         });
 
-        this.request.promise
+        return this.request.promise
             .then((res) => {
                 if (isRoot) {
                     this.parseRootData(res.data);
@@ -204,23 +222,22 @@ export class DetailContentContainer extends React.Component {
         const total = data.total;
 
         let isTruncated = false;
-        let parsedResults = data.results;
+        let parsedResults = ExplorerHelper.truncateDataForTreemap(data.results);
 
-        // set a safety limit of 1,000 cells to prevent the browser from crashing due to too many
-        // DOM elements
-        if (data.results.length > 1000) {
-            parsedResults = data.results.slice(0, 1000);
-        }
         if (request.subdivision === 'award') {
-            const resultTotal = data.results
-                .reduce((sum, item) => sum + item.amount, 0);
             // link to award page using new human readable id
             parsedResults = parsedResults.map((obj) => ({ ...obj, id: encodeURIComponent(obj.generated_unique_award_id) }));
+        }
 
+        if (request.subdivision === 'award' || request.subdivision === 'recipient') {
+            const resultTotal = parsedResults.reduce((sum, item) => sum + item.amount, 0);
             // allow a $10 leeway to account for JS float bugs before triggering a truncation
             // message
             isTruncated = Math.abs(total - resultTotal) > 10;
         }
+
+        parsedResults = ExplorerHelper.appendCellForDataOutsideTree(parsedResults, total, request.subdivision)
+            .sort((a, b) => b.amount - a.amount);
 
         // build the trail item of the last applied filter using the request object
         const trailItem = Object.assign({}, request, {
@@ -299,7 +316,8 @@ export class DetailContentContainer extends React.Component {
         const filterBy = this.props.explorer.active.subdivision;
         if (filterBy === 'award') {
             // we are at the bottom of the path, go to the award page
-            Router.history.push(`/award/${id}`);
+            // TODO: fix for BrowserRouter
+            this.props.history.push(`/award/${id}`);
 
             Analytics.event({
                 category: 'Spending Explorer - Exit',
@@ -353,7 +371,8 @@ export class DetailContentContainer extends React.Component {
             subdivision: nextSubdivision,
             title: data.name,
             id: data.id,
-            accountNumber: data.account_number || ''
+            accountNumber: data.account_number || '',
+            link: data.link
         };
 
         this.props.resetExplorerTable();
@@ -411,7 +430,7 @@ export class DetailContentContainer extends React.Component {
             this.setState({
                 transitionSteps: steps
             }, () => {
-                this.prepareRootRequest(this.props.explorer.root, this.props.explorer.fy, this.props.explorer.quarter);
+                this.prepareRootRequest(this.props.explorer.root, this.props.explorer.fy, this.props.explorer.quarter, this.props.explorer.period);
             });
             return;
         }
@@ -419,7 +438,8 @@ export class DetailContentContainer extends React.Component {
         // iterate through the trail to rebuild the filter set
         const newFilters = {
             fy: this.props.explorer.fy,
-            quarter: this.props.explorer.quarter
+            quarter: this.props.explorer.quarter,
+            period: this.props.explorer.period
         };
         const newTrail = [];
         // iterate through the trail and include only those filters up to the point we are rewinding
@@ -524,6 +544,7 @@ export class DetailContentContainer extends React.Component {
                 <ExplorerSidebar
                     fy={this.props.explorer.fy}
                     quarter={this.props.explorer.quarter}
+                    period={this.props.explorer.period}
                     trail={this.props.explorer.trail}
                     setExplorerPeriod={this.props.setExplorerPeriod}
                     rewindToFilter={this.rewindToFilter} />
@@ -552,8 +573,9 @@ export class DetailContentContainer extends React.Component {
 }
 
 DetailContentContainer.propTypes = propTypes;
+const DetailContentContainerWithRouter = withRouter(DetailContentContainer);
 
 export default connect(
     (state) => ({ explorer: state.explorer }),
     (dispatch) => bindActionCreators(explorerActions, dispatch)
-)(DetailContentContainer);
+)(DetailContentContainerWithRouter);

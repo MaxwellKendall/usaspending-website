@@ -19,9 +19,22 @@
         margin: 0 0 rem(5);
     }
 
+    .back-link {
+        padding-top: rem(25);
+        a {
+            font-size: rem(18);
+            font-weight: bold;
+        }
+        svg {
+            padding-right: rem(5);
+        }
+    }
+
     .about-section-content {
         margin-bottom: rem(25);
-
+        a {
+          word-break: break-all;
+        }
         p {
             font-size: rem(18);
             line-height: rem(28);
@@ -61,6 +74,12 @@
                 @include button-link;
                 font-size: rem(18);
             }
+        }
+        .center {
+          text-align: center;
+        }
+        .usa-button-link__icon {
+          padding-left: rem(3);
         }
 
         .about-section-content-inline-buttons {

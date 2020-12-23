@@ -5,9 +5,6 @@
 
 import React from 'react';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
-
-import { is } from 'immutable';
 
 import { AgencyContainer } from 'containers/agency/AgencyContainer';
 import * as AgencyHelper from 'helpers/agencyHelper';
@@ -16,7 +13,7 @@ import { mockApi, mockRedux } from './mockAgency';
 
 // force Jest to use native Node promises
 // see: https://facebook.github.io/jest/docs/troubleshooting.html#unresolved-promises
-global.Promise = require.requireActual('promise');
+global.Promise = jest.requireActual('promise');
 
 // mock the child component by replacing it with a function that returns a null element
 jest.mock('components/agency/AgencyPage', () =>
@@ -57,11 +54,6 @@ const mockAgencyHelper = (functionName, event, expectedResponse) => {
     });
 };
 
-const unmockAgencyHelper = () => {
-    jest.useRealTimers();
-    jest.unmock('helpers/accountHelper');
-};
-
 describe('AgencyContainer', () => {
     it('should make an API call for the selected agency on mount', () => {
         mockAgencyHelper('fetchAgencyOverview', 'resolve', mockApi);
@@ -86,11 +78,14 @@ describe('AgencyContainer', () => {
         const mockLoad = jest.fn();
         container.instance().loadAgencyOverview = mockLoad;
 
-        const prevProps = Object.assign({}, mockRedux, {
-            params: {
-                agencyId: '232'
+        const prevProps = {
+            ...mockRedux,
+            match: {
+                params: {
+                    agencyId: '232'
+                }
             }
-        });
+        };
 
         container.instance().componentDidUpdate(prevProps);
         jest.runAllTicks();

@@ -3,6 +3,8 @@
   * Created by Kevin Li 11/2/16
   **/
 
+import { is } from 'immutable';
+import { initialState } from 'redux/reducers/search/searchFiltersReducer';
 import { apiRequest } from './apiRequest';
 
 // Agency search for autocomplete
@@ -18,6 +20,21 @@ export const fetchFundingAgencies = (req) => apiRequest({
     data: req
 });
 
+// TAS search
+export const fetchTas = (idString = '') => apiRequest({
+    // str contains depth, prepended with agency & federal account delimited by a '/', if any.
+    url: idString.length === 0
+        ? `/v2/references/filter_tree/tas/`
+        : `/v2/references/filter_tree/tas/${idString}`
+});
+
+// PSC search
+export const fetchPsc = (paramString = '') => apiRequest({
+    url: paramString === ''
+        ? `/v2/references/filter_tree/psc/`
+        : `/v2/references/filter_tree/psc/${paramString}`
+});
+
 // CFDA search for autocomplete
 export const fetchCFDA = (req) => apiRequest({
     url: 'v2/autocomplete/cfda/',
@@ -31,6 +48,12 @@ export const fetchNAICS = (req) => apiRequest({
     url: 'v2/autocomplete/naics/',
     method: 'post',
     data: req
+});
+
+// perform search is a cancellable promise
+// eslint-disable-next-line import/prefer-default-export
+export const naicsRequest = (param) => apiRequest({
+    url: `v2/references/naics/${param || ''}`
 });
 
 // PSC search for autocomplete
@@ -60,7 +83,7 @@ export const performSpendingOverTimeSearch = (params) => apiRequest({
 
 // Spending By Category Visualization Endpoint
 export const performSpendingByCategorySearch = (params) => apiRequest({
-    url: 'v2/search/spending_by_category/',
+    url: `v2/search/spending_by_category/${params.category}`,
     method: 'post',
     headers: {
         'Content-Type': 'application/json'
@@ -96,13 +119,13 @@ export const performSubawardSearch = (data) => apiRequest({
 });
 
 export const generateUrlHash = (data) => apiRequest({
-    url: 'v1/references/filter/',
+    url: 'v2/references/filter/',
     method: 'post',
     data
 });
 
 export const restoreUrlHash = (data) => apiRequest({
-    url: 'v1/references/hash/',
+    url: 'v2/references/hash/',
     method: 'post',
     data
 });
@@ -110,3 +133,51 @@ export const restoreUrlHash = (data) => apiRequest({
 export const fetchLastUpdate = () => apiRequest({
     url: 'v2/awards/last_updated/'
 });
+
+/**
+ * Equality Comparison of two objects:
+ * @param {Object} filters object to be measured for equality
+ * @param {Object} filterReference object by which equality is measured  against
+ * @returns {boolean}
+ */
+export const areFiltersEqual = (filters, filterReference = initialState) => {
+    if (!filterReference && filters) return false;
+    const referenceObject = Object.assign({}, filterReference);
+    const comparisonObject = Object.assign({}, filters);
+    if (referenceObject.timePeriodType === 'fy') {
+        // if the time period is fiscal year, we don't care about the date range values, even
+        // if they're provided because the date range tab isn't selected
+        delete comparisonObject.timePeriodStart;
+        delete comparisonObject.timePeriodEnd;
+        delete referenceObject.timePeriodStart;
+        delete referenceObject.timePeriodEnd;
+    }
+    else if (referenceObject.timePeriodEnd === 'dr') {
+        // if the time period is date range, we don't care about the fiscal year values, even
+        // if they're provided because the fiscal year tab isn't selected
+        delete comparisonObject.timePeriodFY;
+        delete referenceObject.timePeriodFY;
+    }
+
+    // we need to iterate through each of the filter Redux keys in order to perform equality
+    // comparisons on Immutable children (via the Immutable is() function)
+    const filterKeys = Object.keys(comparisonObject);
+
+    for (let i = 0; i < filterKeys.length; i++) {
+        const key = filterKeys[i];
+        const unfilteredValue = comparisonObject[key];
+        const currentValue = referenceObject[key];
+        if (!is(unfilteredValue, currentValue)) return false;
+    }
+    return true;
+};
+
+export const areFiltersEmpty = (filters) => areFiltersEqual(filters);
+export const areFiltersSelected = (filters) => !areFiltersEqual(filters);
+
+export const areFiltersDifferent = (a, b) => !areFiltersEqual(a, b);
+
+export const isSearchHashReady = (str) => str
+    .split('/search/')
+    .filter((s) => s && s !== "/search")
+    .length > 0;

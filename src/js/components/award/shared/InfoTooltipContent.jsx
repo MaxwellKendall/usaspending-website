@@ -1,7 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { uniqueId } from 'lodash';
 
 // Mapping of section identifier to tooltip content JSX
-
 export const transactionHistoryInfoGeneric = (
     <div className="award-summary-tooltip transaction-history-tt">
         <div className="tooltip__title">Transaction History</div>
@@ -224,6 +225,32 @@ export const transactionHistoryInfoFinancialAssistance = (
                 <strong>Description</strong> – Describes the modification,
                 typically covering its effect on the award.
             </p>
+            <p>
+                <strong>Loan Face Value</strong> - The Face Value of a loan represents how much has actually been lent out to
+                the entity that received the loan dollars. Sometimes loans are financed by a
+                financial institution (with the Federal government merely providing a &#39;loan
+                guarantee&#39; to the financial institution and reimbursement in cases where the
+                loan isn&#39;t paid back), and other times they are financed by the Federal
+                government directly (direct loans). Regardless of how it is financed,
+                a loan&#39;s face value is not considered Federal spending, because
+                it does not, in itself, represent a long-term cost to the government. The
+                estimated long-term cost to the government of a loan is captured
+                in the subsidy cost field.
+            </p>
+            <p>
+                <strong>Loan Subsidy Cost (Total Obligations To Date)</strong> - The implications of a loan or loan guarantee for the Federal Budget (and thus the
+            loan version of spending/obligations) are known as the loan&#39;s subsidy
+            cost. Subsidy cost is the calculated net present value of the loan to the
+            government, taking into account the interest rate and the modeled risk of the
+            recipient failing to pay back the loan in part or full; subsidy cost can be
+            positive (indicating that the government is likely to lose money on the loan) or
+            negative (indicating that the government is likely to make money on the
+            loan). Subsidy cost should never be larger in absolute value terms than
+            the face value itself. Administrative costs of running the loan or loan
+            guarantee program itself are excluded from subsidy cost calculations. Note
+            that a loan&#39;s face value is not considered Federal spending, since it
+            does not in itself represent a long-term cost to the government.
+            </p>
         </div>
     </div>
 );
@@ -235,40 +262,8 @@ export const federalAccountFundingInfoIDV = (
         </div>
         <div className="tooltip__text">
             <p>
-                Each row in this table represents a submission of a transaction
-                by the awarding agency  that commits a specific amount of funding
-                to this award. The columns in this table represent the following:
+                Each row in this table shows a transaction in the awarding agency&rsquo;s financial system that promises spending for the award from a federal account (a rollup of TAS, or Treasury accounts), broken down by program activity and object class.
             </p>
-            <ul>
-                <li>
-                    <strong>Submission Date</strong> – When the transaction from
-                    the awarding agency was submitted to our system.
-                </li>
-                <li>
-                    <strong>Award ID</strong> – The ID number of the award that
-                    is being funded in this transaction.
-                </li>
-                <li>
-                    <strong>Agency</strong> – The awarding agency reporting the
-                    funding transaction.
-                </li>
-                <li>
-                    <strong>Federal Account</strong> –The Treasury account group
-                    that is providing the funds of the transaction.
-                </li>
-                <li>
-                    <strong>Program Activity</strong> – The specific activity or
-                    project (program) that this transaction&apos;s funds are for.
-                </li>
-                <li>
-                    <strong>Object Class</strong> – A broad category of spending
-                    this transaction has been categorized in.
-                </li>
-                <li>
-                    <strong>Funding Obligated</strong> – The amount funded in this
-                    transaction by the awarding agency.
-                </li>
-            </ul>
         </div>
     </div>
 );
@@ -280,38 +275,8 @@ export const federalAccountFundingInfoGeneric = (
         </div>
         <div className="tooltip__text">
             <p>
-                Each row in this table represents a transaction in the awarding
-                agency&apos;s financial system that commits a specific amount of
-                funding to this award from a federal account
-                (a rollup of Treasury accounts), broken down by program
-                activity and object class. The columns in this table represent the following:
+                Each row in this table shows a transaction in the awarding agency&rsquo;s financial system that promises spending for the award from a federal account (a rollup of TAS, or Treasury accounts), broken down by program activity and object class.
             </p>
-            <ul>
-                <li>
-                    <strong>Submission Date</strong> – The fiscal year and quarter of
-                    the date when the transaction occurred.
-                </li>
-                <li>
-                    <strong>Agency</strong> – The awarding agency reporting the
-                    funding transaction.
-                </li>
-                <li>
-                    <strong>Federal Account</strong> – The Federal Account that
-                    is providing the funds for the transaction.
-                </li>
-                <li>
-                    <strong>Program Activity</strong> – The specific activity or
-                    project (program) that this transaction&apos;s funds are for.
-                </li>
-                <li>
-                    <strong>Object Class</strong> – The broad category of spending
-                    this transaction has been categorized in.
-                </li>
-                <li>
-                    <strong>Funding Obligated</strong> – The amount funded in this
-                    transaction by the awarding agency.
-                </li>
-            </ul>
         </div>
     </div>
 );
@@ -390,10 +355,10 @@ export const summaryRelatedAwardsInfo = (
             Related Awards
         </div>
         <div className="tooltip__text">
-            <strong>Parent IDV</strong>
-            <p className="tooltip__text-section">A parent IDV, or parent indefinite delivery vehicle, is any award that has other prime awards made under it.</p>
+            <strong>Parent Award</strong>
+            <p className="tooltip__text-section">A parent award, or parent indefinite delivery vehicle (IDV), is any award that has other prime awards made under it.</p>
             <p className="tooltip__text-section">The contract summarized on this page is a “child” prime award of the parent IDV indicated here.</p>
-            <p className="tooltip__text-section">Click on the award ID to view the summary page of this award&apos;s parent IDV, which details all of that IDV&apos;s “child” and “grandchild” awards.</p>
+            <p className="tooltip__text-section">Click on the parent award ID to view the summary page of this award&apos;s parent award, which details all of that parent award&apos;s “child” and “grandchild” awards.</p>
             <strong>Sub-Awards</strong>
             <p className="tooltip__text-section">
                 This is the count of sub-awards (in this case, sub-contracts to furnish supplies or services to advance the prime contract) issued and reported directly
@@ -1249,3 +1214,28 @@ export const CFDASectionInfo = (
         </div>
     </div>
 );
+
+export const CovidFlagTooltip = ({ codes }) => (
+    <div className="award-summary-tooltip covid-19">
+        <div className="tooltip__title">
+            COVID-19 Spending
+        </div>
+        <div className="tooltip__text">
+            <p>This award is part of the COVID-19 Spending because part of its spending was derived from funds associated with the following <strong>Disaster Emergency Fund Codes</strong> (DEFC): </p>
+            <p style={{ textAlign: 'center' }}>
+                {codes.map((code, i, arr) => {
+                    if (i === arr.length - 1) {
+                        return <strong key={uniqueId(i)}>{code.toUpperCase()}</strong>;
+                    }
+                    return <strong key={uniqueId(i)}>{`${code.toUpperCase()}, `}</strong>;
+                }
+                )}
+            </p>
+        </div>
+    </div>
+);
+
+
+CovidFlagTooltip.propTypes = {
+    codes: PropTypes.arrayOf(PropTypes.string)
+};

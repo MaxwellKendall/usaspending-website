@@ -2,7 +2,7 @@ const merge = require('webpack-merge');
 const webpack = require('webpack');
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
 
 const common = require('./webpack.common');
 
@@ -18,7 +18,7 @@ module.exports = merge(common, {
     },
     optimization: {
         minimizer: [
-            new UglifyJsPlugin({
+            new TerserPlugin({
                 cache: true,
                 parallel: true
             }),
@@ -70,11 +70,7 @@ module.exports = merge(common, {
                     : JSON.stringify("https://api.usaspending.gov/api/"),
                 MAPBOX_TOKEN: process.env.MAPBOX_TOKEN
                     ? JSON.stringify(process.env.MAPBOX_TOKEN)
-                    : JSON.stringify(""),
-                GA_TRACKING_ID: process.env.GA_TRACKING_ID
-                    ? JSON.stringify(process.env.GA_TRACKING_ID)
-                    : JSON.stringify(""),
-                IS_DEV: JSON.stringify('false')
+                    : JSON.stringify("")
             }
         })
     ]

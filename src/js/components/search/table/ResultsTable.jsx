@@ -31,6 +31,7 @@ const rowHeight = 40;
 // setting the table height to a partial row prevents double bottom borders and also clearly
 // indicates when there's more data
 const tableHeight = 29.5 * rowHeight;
+const headerHeight = 68; // tall enough for two lines of text since allowing subtitles
 
 export default class ResultsTable extends React.Component {
     constructor(props) {
@@ -59,9 +60,12 @@ export default class ResultsTable extends React.Component {
                 isActive={isActive}
                 title={column.columnName}
                 displayName={column.displayName}
+                subtitle={column.subtitle}
+                background={column.background}
                 defaultDirection={column.defaultDirection}
                 currentSort={this.props.sort}
-                updateSort={this.props.updateSort} />
+                updateSort={this.props.updateSort}
+                headerHeight={headerHeight} />
         );
     }
 
@@ -98,6 +102,11 @@ export default class ResultsTable extends React.Component {
             props.id = this.props.results[rowIndex].prime_award_recipient_id;
             props.column = 'recipient';
         }
+        else if (column.columnName === 'Awarding Agency' && this.props.results[rowIndex].awarding_agency_id) {
+            cellClass = ResultsTableLinkCell;
+            props.id = this.props.results[rowIndex].awarding_agency_id;
+            props.column = 'agency';
+        }
         else if (column.columnName === 'Prime Award ID') {
             const primeAwardId = this.props.results[rowIndex].prime_award_generated_internal_id;
             if (primeAwardId) {
@@ -113,7 +122,27 @@ export default class ResultsTable extends React.Component {
                 props.value = '- -';
             }
         }
-
+        else if (
+            (column.columnName === 'COVID-19 Obligations' || column.columnName === 'COVID-19 Outlays')
+            && !this.props.results[rowIndex][column.columnName]) {
+            props.value = '--';
+        }
+        else if (column.columnName === 'def_codes') {
+            if (!this.props.results[rowIndex].def_codes) {
+                props.value = '--';
+            }
+            else {
+                props.value = this.props.results[rowIndex].def_codes.join(", ");
+            }
+        }
+        else if (column.columnName === 'Description') {
+            if (!this.props.results[rowIndex].Description) {
+                props.value = '--';
+            }
+            else {
+                props.value = this.props.results[rowIndex].Description;
+            }
+        }
         return React.createElement(
             cellClass,
             props
@@ -156,7 +185,7 @@ export default class ResultsTable extends React.Component {
                 <IBTable
                     rowHeight={rowHeight}
                     rowCount={this.props.results.length}
-                    headerHeight={50}
+                    headerHeight={headerHeight}
                     contentWidth={calculatedValues.width}
                     bodyWidth={this.props.visibleWidth}
                     bodyHeight={variableBodyHeight}

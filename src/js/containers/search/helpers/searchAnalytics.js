@@ -8,7 +8,7 @@ import { uniq } from 'lodash';
 import {
     awardTypeCodes,
     awardTypeGroups,
-    awardTypeGroupLabels
+    analyticsAwardTypeGroupLabels
 } from 'dataMapping/search/awardType';
 import { recipientTypes, groupLabels } from 'dataMapping/search/recipientType';
 import {
@@ -20,6 +20,15 @@ import {
 import Analytics from 'helpers/analytics/Analytics';
 
 const eventCategory = 'Advanced Search - Search Filter';
+
+const getStringFromArray = (arrOfStr) => arrOfStr
+    .sort()
+    .reduce((acc, code, i, array) => {
+        if (array.length - 1 === i) {
+            return `${acc}${code}`;
+        }
+        return `${acc}${code}, `;
+    }, '');
 
 export const convertDateRange = (range) => {
     if (range.length !== 2) {
@@ -107,7 +116,7 @@ export const combineAwardTypeGroups = (filters) => {
         const groupValues = awardTypeGroups[key];
         const fullMembership = groupValues.every((value) => filters.includes(value));
         if (fullMembership) {
-            groups.push(`All ${awardTypeGroupLabels[key]}`);
+            groups.push(`All ${analyticsAwardTypeGroupLabels[key]}`);
             groupedFilters = groupedFilters.concat(groupValues);
         }
         return groups;
@@ -123,6 +132,12 @@ export const combineAwardTypeGroups = (filters) => {
     }, []);
 
     return fullTypes.concat(remainingFilters);
+};
+
+export const handleCheckboxTreeSelection = (value, label) => {
+    const selectedValues = value.get('require');
+    if (selectedValues.length) return convertReducibleValue([selectedValues], label, getStringFromArray);
+    return null;
 };
 
 export const convertFilter = (type, value) => {
@@ -167,17 +182,26 @@ export const convertFilter = (type, value) => {
                 'CFDA Program',
                 (cfda) => `${cfda.program_number} - ${cfda.program_title}`
             );
-        case 'selectedNAICS':
-            return convertReducibleValue(
+        case 'defCodes': {
+            return handleCheckboxTreeSelection(
                 value,
-                'NAICS Code',
-                (naics) => `${naics.naics} - ${naics.naics_description}`
+                'DEFC Filter'
             );
-        case 'selectedPSC':
-            return convertReducibleValue(
+        }
+        case 'naicsCodes':
+            return handleCheckboxTreeSelection(
                 value,
-                'Product/Service Code (PSC)',
-                (psc) => `${psc.product_or_service_code} - ${psc.psc_description}`
+                'NAICS Codes'
+            );
+        case 'pscCodes':
+            return handleCheckboxTreeSelection(
+                value,
+                'Product or Service Code (PSC)'
+            );
+        case 'tasCodes':
+            return handleCheckboxTreeSelection(
+                value,
+                'Treasury Account Symbol (TAS)'
             );
         case 'pricingType':
             return convertReducibleValue(

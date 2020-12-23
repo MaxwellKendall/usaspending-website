@@ -2,7 +2,7 @@ import { mockRecipientDUNS } from './recipientFilter/mockRecipients';
 import { mockAgencies } from './agencyFilter/mockAgencies';
 import { mockApi, mockV2TableApi, mockTabCount } from '../table/mockAwards';
 import { mockCFDA } from './cfda/mockCFDA';
-import { mockNAICS } from './naics/mockNAICS';
+import { mockNAICS, naicsMock2 } from './naics/mockNAICS';
 import { mockPSC } from './psc/mockPSC';
 
 import { mockHash, mockFilters } from '../mockSearchHashes';
@@ -34,7 +34,6 @@ export const fetchAwardingAgencies = () => (
         cancel: jest.fn()
     }
 );
-
 export const fetchFundingAgencies = () => (
     {
         promise: new Promise((resolve) => {
@@ -118,7 +117,7 @@ export const performPagedSpendingByAwardSearch = () => (
     }
 );
 
-export const generateUrlHash = () => (
+export const generateUrlHash = jest.fn(() => (
     {
         promise: new Promise((resolve) => {
             process.nextTick(() => {
@@ -129,9 +128,9 @@ export const generateUrlHash = () => (
         }),
         cancel: jest.fn()
     }
-);
+));
 
-export const restoreUrlHash = () => (
+export const restoreUrlHash = jest.fn(() => (
     {
         promise: new Promise((resolve) => {
             process.nextTick(() => {
@@ -142,7 +141,7 @@ export const restoreUrlHash = () => (
         }),
         cancel: jest.fn()
     }
-);
+));
 
 export const fetchLastUpdate = () => (
     {
@@ -171,3 +170,28 @@ export const performSpendingByAwardSearch = () => (
         cancel: jest.fn()
     }
 );
+
+const newError = new Error('Bad');
+
+export const naicsRequest = (fail) => {
+    if (fail) {
+        return (
+            {
+                promise: new Promise((resolve, reject) => {
+                    reject(newError);
+                }),
+                cancel: jest.fn()
+            }
+        );
+    }
+    return (
+        {
+            promise: new Promise((resolve) => {
+                resolve({
+                    data: { results: naicsMock2 }
+                });
+            }),
+            cancel: jest.fn()
+        }
+    );
+};

@@ -1,0 +1,26 @@
+.assistance-listing {
+    .usda-table {
+        .usda-table__body {
+            tr.usda-table__row {
+                td.usda-table__cell {
+                    &:first-of-type {
+                        .fa-external-link-alt {
+                            margin-left: rem(5);
+                        }
+                    }
+                    .assistance-listing__button__container {
+                      .assistance-listing__button {
+                          @include button-link;
+                          font-size: 1.8rem;
+                          .assistance-listing__button__icon {
+                            margin-left: 0.3rem;
+                            white-space: nowrap;
+                          }
+                      }
+                    }
+                }
+            }
+        }
+    }
+}
+@import 'pages/covid19/_unlinkedData';

@@ -27,22 +27,31 @@ export const mockFilters = {
             awardAmounts: {},
             timePeriodEnd: null,
             selectedCFDA: {},
-            selectedNAICS: {},
-            selectedPSC: {},
             pricingType: [],
             setAside: [],
             extentCompeted: [],
-            federalAccounts: [],
-            treasuryAccounts: []
+            treasuryAccounts: [],
+            naicsCodes: { require: [], exclude: [], counts: [] },
+            tasCodes: { require: [], exclude: [], counts: [] },
+            pscCodes: { require: [], exclude: [], counts: [] },
+            defCodes: { require: [], exclude: [], counts: [] }
         }
-    }
+    },
+    _empty: false,
+    _complete: true
 };
 
 export const mockRedux = {
     filters: initialState,
     appliedFilters: initialApplied,
-    params: {
-        hash: ''
+    history: {
+        location: '',
+        replace: () => {}
+    },
+    match: {
+        params: {
+            hash: ''
+        }
     }
 };
 

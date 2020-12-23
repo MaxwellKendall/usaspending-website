@@ -10,14 +10,16 @@ import {
     downloadArchivePageMetaTags,
     downloadAwardPageMetaTags,
     downloadAccountPageMetaTags,
-    dataDictionaryPageMetaTags
+    dataDictionaryPageMetaTags,
+    metadataDownloadPageMetaTags
 } from 'helpers/metaTagHelper';
 import Footer from 'containers/Footer';
 
 import MetaTags from 'components/sharedComponents/metaTags/MetaTags';
-import Header from 'components/sharedComponents/header/Header';
+import Header from 'containers/shared/HeaderContainer';
 import StickyHeader from 'components/sharedComponents/stickyHeader/StickyHeader';
 
+import MetadataDownload from 'components/bulkDownload/MetadataDownload';
 import AwardDataContainer from 'containers/bulkDownload/awards/AwardDataContainer';
 import AccountDataContainer from 'containers/bulkDownload/accounts/AccountDataContainer';
 import AwardDataArchiveContainer from 'containers/bulkDownload/archive/AwardDataArchiveContainer';
@@ -32,6 +34,14 @@ const propTypes = {
     startAwardDownload: PropTypes.func,
     startAccountDownload: PropTypes.func,
     dataTypes: PropTypes.array
+};
+
+const metaTagsByDataType = {
+    data_dictionary: dataDictionaryPageMetaTags,
+    awards: downloadAwardPageMetaTags,
+    accounts: downloadAccountPageMetaTags,
+    award_data_archive: downloadArchivePageMetaTags,
+    dataset_metadata: metadataDownloadPageMetaTags
 };
 
 export default class BulkDownloadPage extends React.Component {
@@ -83,29 +93,30 @@ export default class BulkDownloadPage extends React.Component {
             <AwardDataContainer
                 clickedDownload={this.clickedDownload} />
         );
-        let metaTags = downloadAwardPageMetaTags;
         if (this.props.dataType === 'award_data_archive') {
             downloadDataContent = (
                 <AwardDataArchiveContainer />
             );
-            metaTags = downloadArchivePageMetaTags;
         }
         if (this.props.dataType === 'accounts') {
             downloadDataContent = (
                 <AccountDataContainer
                     clickedDownload={this.clickedDownload} />
             );
-            metaTags = downloadAccountPageMetaTags;
         }
         if (this.props.dataType === 'data_dictionary') {
             downloadDataContent = (
                 <DataDictionaryContainer />
             );
-            metaTags = dataDictionaryPageMetaTags;
+        }
+        if (this.props.dataType === 'dataset_metadata') {
+            downloadDataContent = (
+                <MetadataDownload />
+            );
         }
         return (
             <div className="usa-da-bulk-download-page">
-                <MetaTags {...metaTags} />
+                {Object.keys(metaTagsByDataType).includes(this.props.dataType) && <MetaTags {...metaTagsByDataType[this.props.dataType]} />}
                 <Header />
                 <StickyHeader>
                     <div className="sticky-header__title">

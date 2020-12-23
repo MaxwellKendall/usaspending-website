@@ -52,13 +52,12 @@ export default class AgencyFilterGroup extends React.Component {
                 agencyTitle += ` (${value.toptier_agency.abbreviation})`;
             }
             if (value.agencyType === 'subtier' && value.toptier_flag === false) {
-                agencyTitle += ' | Sub-Agency';
+                agencyTitle += ` | Sub-Agency of ${value.toptier_agency.abbreviation || value.toptier_agency.name}`;
             }
 
             const tag = {
                 value: `${value.id}_${value.agencyType}`,
                 title: agencyTitle,
-                isSpecial: false,
                 removeFilter: this.removeFilter
             };
 

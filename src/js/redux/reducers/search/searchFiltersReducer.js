@@ -3,7 +3,7 @@
  * Created by Kevin Li 11/1/16
  **/
 
-import { Set, OrderedMap } from 'immutable';
+import { Set, OrderedMap, Record } from 'immutable';
 
 import * as KeywordFilterFunctions from './filters/keywordFilterFunctions';
 import * as AwardFilterFunctions from './filters/awardFilterFunctions';
@@ -19,7 +19,11 @@ import * as ProgramSourceFilterFunctions from './filters/programSourceFilterFunc
 // frontend will reject inbound hashed search filter sets with different versions because the
 // data structures may have changed
 
-export const filterStoreVersion = '2019-07-26';
+export const filterStoreVersion = '2020-06-01';
+
+const defaultCheckboxTreeSelections = { require: [], exclude: [], counts: [] };
+
+export const CheckboxTreeSelections = Record(defaultCheckboxTreeSelections);
 
 export const requiredTypes = {
     keyword: OrderedMap,
@@ -34,40 +38,42 @@ export const requiredTypes = {
     selectedAwardIDs: OrderedMap,
     awardAmounts: OrderedMap,
     selectedCFDA: OrderedMap,
-    selectedNAICS: OrderedMap,
-    selectedPSC: OrderedMap,
+    treasuryAccounts: OrderedMap,
+    tasCodes: CheckboxTreeSelections,
+    naicsCodes: CheckboxTreeSelections,
+    pscCodes: CheckboxTreeSelections,
+    defCodes: CheckboxTreeSelections,
     pricingType: Set,
     setAside: Set,
-    extentCompeted: Set,
-    treasuryAccounts: OrderedMap,
-    federalAccounts: OrderedMap
+    extentCompeted: Set
 };
 
 export const initialState = {
-    keyword: new OrderedMap(),
+    keyword: OrderedMap(),
     timePeriodType: 'fy',
-    timePeriodFY: new Set(),
+    timePeriodFY: Set(),
     timePeriodStart: null,
     timePeriodEnd: null,
-    selectedLocations: new OrderedMap(),
+    selectedLocations: OrderedMap(),
     locationDomesticForeign: 'all',
-    selectedFundingAgencies: new OrderedMap(),
-    selectedAwardingAgencies: new OrderedMap(),
-    selectedRecipients: new Set(),
+    selectedFundingAgencies: OrderedMap(),
+    selectedAwardingAgencies: OrderedMap(),
+    selectedRecipients: Set(),
     recipientDomesticForeign: 'all',
-    recipientType: new Set(),
-    selectedRecipientLocations: new OrderedMap(),
-    awardType: new Set(),
-    selectedAwardIDs: new OrderedMap(),
-    awardAmounts: new OrderedMap(),
-    selectedCFDA: new OrderedMap(),
-    selectedNAICS: new OrderedMap(),
-    selectedPSC: new OrderedMap(),
-    pricingType: new Set(),
-    setAside: new Set(),
-    extentCompeted: new Set(),
-    federalAccounts: new OrderedMap(),
-    treasuryAccounts: new OrderedMap()
+    recipientType: Set(),
+    selectedRecipientLocations: OrderedMap(),
+    awardType: Set(),
+    selectedAwardIDs: OrderedMap(),
+    awardAmounts: OrderedMap(),
+    selectedCFDA: OrderedMap(),
+    naicsCodes: CheckboxTreeSelections(defaultCheckboxTreeSelections),
+    pscCodes: CheckboxTreeSelections(defaultCheckboxTreeSelections),
+    defCodes: CheckboxTreeSelections(defaultCheckboxTreeSelections),
+    pricingType: Set(),
+    setAside: Set(),
+    extentCompeted: Set(),
+    treasuryAccounts: OrderedMap(),
+    tasCodes: CheckboxTreeSelections(defaultCheckboxTreeSelections)
 };
 
 const searchFiltersReducer = (state = initialState, action) => {
@@ -121,12 +127,6 @@ const searchFiltersReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 treasuryAccounts: ProgramSourceFilterFunctions.updateSelectedSources(
                     state.treasuryAccounts, action.source)
-            });
-        }
-        case 'UPDATE_FEDERAL_ACCOUNT_COMPONENTS': {
-            return Object.assign({}, state, {
-                federalAccounts: ProgramSourceFilterFunctions.updateSelectedSources(
-                    state.federalAccounts, action.source)
             });
         }
 
@@ -210,26 +210,25 @@ const searchFiltersReducer = (state = initialState, action) => {
             });
         }
 
-        // NAICS Filter (v2)
-        case 'UPDATE_NAICS': {
-            return Object.assign({}, state, {
-                naics: OtherFilterFunctions.updateNaics(action.naics)
-            });
-        }
-
         // NAICS Filter
-        case 'UPDATE_SELECTED_NAICS': {
+        case 'UPDATE_NAICS': {
+            const naicsCodes = new CheckboxTreeSelections(OtherFilterFunctions.updateNaics(action.payload));
             return Object.assign({}, state, {
-                selectedNAICS: OtherFilterFunctions.updateSelectedNAICS(
-                    state.selectedNAICS, action.naics)
+                naicsCodes
             });
         }
 
-        // PSC Filter
-        case 'UPDATE_SELECTED_PSC': {
+        // PSC_V2 Filter
+        case 'UPDATE_PSC': {
             return Object.assign({}, state, {
-                selectedPSC: OtherFilterFunctions.updateSelectedPSC(
-                    state.selectedPSC, action.psc)
+                pscCodes: action.payload
+            });
+        }
+
+        // TAS_V2 Filter
+        case 'UPDATE_TAS': {
+            return Object.assign({}, state, {
+                tasCodes: action.payload
             });
         }
 
@@ -254,6 +253,13 @@ const searchFiltersReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 extentCompeted: ContractFilterFunctions.updateContractFilterSet(
                     state.extentCompeted, action.extentCompeted)
+            });
+        }
+
+        // DEF Codes Filter
+        case 'UPDATE_DEF_CODES': {
+            return Object.assign({}, state, {
+                defCodes: action.payload
             });
         }
 

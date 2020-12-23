@@ -6,7 +6,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Cookies from 'js-cookie';
+import MapboxGL from 'mapbox-gl/dist/mapbox-gl';
 
+import ResultsTableErrorMessage from 'components/search/table/ResultsTableErrorMessage';
 import LoadingSpinner from 'components/sharedComponents/LoadingSpinner';
 import { ExclamationTriangle } from 'components/sharedComponents/icons/Icons';
 
@@ -27,7 +29,9 @@ const propTypes = {
     total: PropTypes.number,
     loading: PropTypes.bool,
     error: PropTypes.bool,
-    noResults: PropTypes.bool
+    noResults: PropTypes.bool,
+    mapLegendToggle: PropTypes.string,
+    updateMapLegendToggle: PropTypes.func
 };
 
 const availableLayers = ['state', 'county', 'congressionalDistrict'];
@@ -47,15 +51,15 @@ export default class GeoVisualizationSection extends React.Component {
         this.closeDisclaimer = this.closeDisclaimer.bind(this);
     }
 
-    componentWillMount() {
+    componentDidMount() {
         // check if the disclaimer cookie exists
         if (!Cookies.get('usaspending_search_map_disclaimer')) {
             // cookie does not exist, show the disclaimer
-            this.setState({
-                showDisclaimer: true
-            });
+            this.showDisclaimer();
         }
     }
+
+    showDisclaimer = () => this.setState({ showDisclaimer: true });
 
     showTooltip(geoId, position) {
         // convert state code to full string name
@@ -88,6 +92,14 @@ export default class GeoVisualizationSection extends React.Component {
     }
 
     render() {
+        if (!MapboxGL.supported()) {
+            return (
+                <div className="results-table-message-container">
+                    <ResultsTableErrorMessage title="WebGL Required for this map." description="Please enable WebGL in your browser settings to view this map visualization." />
+                </div>
+            );
+        }
+
         let disclaimer = null;
         if (this.state.showDisclaimer) {
             disclaimer = (<MapDisclaimer
@@ -95,6 +107,7 @@ export default class GeoVisualizationSection extends React.Component {
         }
 
         let message = null;
+
         if (this.props.loading) {
             message = (
                 <MapMessage>
@@ -192,7 +205,9 @@ export default class GeoVisualizationSection extends React.Component {
                     tooltip={GeoVisualizationTooltip}
                     availableLayers={availableLayers}
                     showLayerToggle
-                    center={[-95.569430, 38.852892]}>
+                    center={[-95.569430, 38.852892]}
+                    mapLegendToggle={this.props.mapLegendToggle}
+                    updateMapLegendToggle={this.props.updateMapLegendToggle}>
                     {disclaimer}
                     {message}
                 </MapWrapper>

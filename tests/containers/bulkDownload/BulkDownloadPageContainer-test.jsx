@@ -5,23 +5,21 @@
 
 import React from 'react';
 import { shallow } from 'enzyme';
-import Router from './mockRouter';
 
 import { BulkDownloadPageContainer } from 'containers/bulkDownload/BulkDownloadPageContainer';
-import { mockActions, mockRedux } from './mockData';
+import { mockActions, mockProps } from './mockData';
 
 // mock the bulkDownload helper
 jest.mock('helpers/bulkDownloadHelper', () => require('./mockBulkDownloadHelper'));
 
 // mock the child component by replacing it with a function that returns a null element
 jest.mock('components/bulkDownload/BulkDownloadPage', () => jest.fn(() => null));
-jest.mock('containers/router/Router', () => require('./mockRouter'));
 
 describe('BulkDownloadPageContainer', () => {
     describe('startAwardDownload', () => {
         it('should make an API request when called', () => {
             const container = shallow(<BulkDownloadPageContainer
-                {...mockRedux}
+                {...mockProps}
                 {...mockActions} />);
 
             const requestDownload = jest.fn();
@@ -33,7 +31,7 @@ describe('BulkDownloadPageContainer', () => {
         });
         it('should parse the Redux state into request params', () => {
             const container = shallow(<BulkDownloadPageContainer
-                {...mockRedux}
+                {...mockProps}
                 {...mockActions} />);
 
             const expectedParams = {
@@ -42,7 +40,9 @@ describe('BulkDownloadPageContainer', () => {
                 filters: {
                     prime_award_types: ["02", "03", "04", "05", "07", "08"],
                     sub_award_types: ['procurement'],
-                    agency: '123',
+                    agencies: [{
+                        name: 'Mock Sub-Agency', type: 'funding', tier: 'subtier', toptier_name: 'Mock Agency'
+                    }],
                     recipient_locations: [
                         {
                             country: 'USA',
@@ -54,7 +54,8 @@ describe('BulkDownloadPageContainer', () => {
                         start_date: '11-01-2016'
                     },
                     date_type: 'action_date',
-                    sub_agency: 'Mock Sub-Agency'
+                    sub_agency: 'Mock Sub-Agency',
+                    def_codes: ["L", "M", "N", "O", "P"]
                 }
             };
 
@@ -66,7 +67,7 @@ describe('BulkDownloadPageContainer', () => {
             expect(requestDownload).toHaveBeenCalledWith(expectedParams, 'awards');
         });
         it('should include the recipient scope filter for foreign locations', () => {
-            const awards = Object.assign({}, mockRedux.bulkDownload.awards, {
+            const awards = Object.assign({}, mockProps.bulkDownload.awards, {
                 location: {
                     country: {
                         code: 'FOREIGN',
@@ -78,10 +79,10 @@ describe('BulkDownloadPageContainer', () => {
                     }
                 }
             });
-            const bulkDownload = Object.assign({}, mockRedux.bulkDownload, {
+            const bulkDownload = Object.assign({}, mockProps.bulkDownload, {
                 awards
             });
-            const updatedRedux = Object.assign({}, mockRedux, {
+            const updatedRedux = Object.assign({}, mockProps, {
                 bulkDownload
             });
 
@@ -93,7 +94,9 @@ describe('BulkDownloadPageContainer', () => {
                 columns: [],
                 file_format: 'csv',
                 filters: {
-                    agency: '123',
+                    agencies: [{
+                        name: 'Mock Sub-Agency', type: 'funding', tier: 'subtier', toptier_name: 'Mock Agency'
+                    }],
                     prime_award_types: ["02", "03", "04", "05", "07", "08"],
                     sub_award_types: ['procurement'],
                     recipient_scope: 'foreign',
@@ -102,7 +105,8 @@ describe('BulkDownloadPageContainer', () => {
                         start_date: '11-01-2016'
                     },
                     date_type: 'action_date',
-                    sub_agency: 'Mock Sub-Agency'
+                    sub_agency: 'Mock Sub-Agency',
+                    def_codes: ["L", "M", "N", "O", "P"]
                 }
             };
 
@@ -114,7 +118,7 @@ describe('BulkDownloadPageContainer', () => {
             expect(requestDownload).toHaveBeenCalledWith(expectedParams, 'awards');
         });
         it('should not include the recipient location filter for all countries', () => {
-            const awards = Object.assign({}, mockRedux.bulkDownload.awards, {
+            const awards = Object.assign({}, mockProps.bulkDownload.awards, {
                 location: {
                     country: {
                         code: 'all',
@@ -126,10 +130,10 @@ describe('BulkDownloadPageContainer', () => {
                     }
                 }
             });
-            const bulkDownload = Object.assign({}, mockRedux.bulkDownload, {
+            const bulkDownload = Object.assign({}, mockProps.bulkDownload, {
                 awards
             });
-            const updatedRedux = Object.assign({}, mockRedux, {
+            const updatedRedux = Object.assign({}, mockProps, {
                 bulkDownload
             });
 
@@ -141,7 +145,9 @@ describe('BulkDownloadPageContainer', () => {
                 columns: [],
                 file_format: 'csv',
                 filters: {
-                    agency: '123',
+                    agencies: [{
+                        name: 'Mock Sub-Agency', type: 'funding', tier: 'subtier', toptier_name: 'Mock Agency'
+                    }],
                     prime_award_types: ["02", "03", "04", "05", "07", "08"],
                     sub_award_types: ['procurement'],
                     date_range: {
@@ -149,7 +155,8 @@ describe('BulkDownloadPageContainer', () => {
                         start_date: '11-01-2016'
                     },
                     date_type: 'action_date',
-                    sub_agency: 'Mock Sub-Agency'
+                    sub_agency: 'Mock Sub-Agency',
+                    def_codes: ["L", "M", "N", "O", "P"]
                 }
             };
 
@@ -161,7 +168,7 @@ describe('BulkDownloadPageContainer', () => {
             expect(requestDownload).toHaveBeenCalledWith(expectedParams, 'awards');
         });
         it('should not include the state filter for all states', () => {
-            const awards = Object.assign({}, mockRedux.bulkDownload.awards, {
+            const awards = Object.assign({}, mockProps.bulkDownload.awards, {
                 location: {
                     country: {
                         code: 'USA',
@@ -173,10 +180,10 @@ describe('BulkDownloadPageContainer', () => {
                     }
                 }
             });
-            const bulkDownload = Object.assign({}, mockRedux.bulkDownload, {
+            const bulkDownload = Object.assign({}, mockProps.bulkDownload, {
                 awards
             });
-            const updatedRedux = Object.assign({}, mockRedux, {
+            const updatedRedux = Object.assign({}, mockProps, {
                 bulkDownload
             });
 
@@ -188,7 +195,9 @@ describe('BulkDownloadPageContainer', () => {
                 columns: [],
                 file_format: 'csv',
                 filters: {
-                    agency: '123',
+                    agencies: [{
+                        name: 'Mock Sub-Agency', type: 'funding', tier: 'subtier', toptier_name: 'Mock Agency'
+                    }],
                     prime_award_types: ["02", "03", "04", "05", "07", "08"],
                     sub_award_types: ['procurement'],
                     recipient_locations: [
@@ -201,7 +210,8 @@ describe('BulkDownloadPageContainer', () => {
                         start_date: '11-01-2016'
                     },
                     date_type: 'action_date',
-                    sub_agency: 'Mock Sub-Agency'
+                    sub_agency: 'Mock Sub-Agency',
+                    def_codes: ["L", "M", "N", "O", "P"]
                 }
             };
 
@@ -213,13 +223,13 @@ describe('BulkDownloadPageContainer', () => {
             expect(requestDownload).toHaveBeenCalledWith(expectedParams, 'awards');
         });
         it('should use place of performance as for location filter', () => {
-            const awards = Object.assign({}, mockRedux.bulkDownload.awards, {
+            const awards = Object.assign({}, mockProps.bulkDownload.awards, {
                 locationType: 'place_of_performance'
             });
-            const bulkDownload = Object.assign({}, mockRedux.bulkDownload, {
+            const bulkDownload = Object.assign({}, mockProps.bulkDownload, {
                 awards
             });
-            const updatedRedux = Object.assign({}, mockRedux, {
+            const updatedRedux = Object.assign({}, mockProps, {
                 bulkDownload
             });
 
@@ -231,13 +241,15 @@ describe('BulkDownloadPageContainer', () => {
                 columns: [],
                 file_format: 'csv',
                 filters: {
-                    agency: '123',
+                    agencies: [{
+                        name: 'Mock Sub-Agency', type: 'funding', tier: 'subtier', toptier_name: 'Mock Agency'
+                    }],
                     prime_award_types: ["02", "03", "04", "05", "07", "08"],
                     sub_award_types: ['procurement'],
                     place_of_performance_locations: [
                         {
                             country: 'USA',
-                            state: 'HI',
+                            state: 'HI'
                         }
                     ],
                     date_range: {
@@ -245,7 +257,8 @@ describe('BulkDownloadPageContainer', () => {
                         start_date: '11-01-2016'
                     },
                     date_type: 'action_date',
-                    sub_agency: 'Mock Sub-Agency'
+                    sub_agency: 'Mock Sub-Agency',
+                    def_codes: ["L", "M", "N", "O", "P"]
                 }
             };
 
@@ -257,7 +270,7 @@ describe('BulkDownloadPageContainer', () => {
             expect(requestDownload).toHaveBeenCalledWith(expectedParams, 'awards');
         });
         it('should include the place of performance scope filter for foreign locations', () => {
-            const awards = Object.assign({}, mockRedux.bulkDownload.awards, {
+            const awards = Object.assign({}, mockProps.bulkDownload.awards, {
                 location: {
                     country: {
                         code: 'FOREIGN',
@@ -270,10 +283,10 @@ describe('BulkDownloadPageContainer', () => {
                 },
                 locationType: 'place_of_performance'
             });
-            const bulkDownload = Object.assign({}, mockRedux.bulkDownload, {
+            const bulkDownload = Object.assign({}, mockProps.bulkDownload, {
                 awards
             });
-            const updatedRedux = Object.assign({}, mockRedux, {
+            const updatedRedux = Object.assign({}, mockProps, {
                 bulkDownload
             });
 
@@ -285,7 +298,9 @@ describe('BulkDownloadPageContainer', () => {
                 columns: [],
                 file_format: 'csv',
                 filters: {
-                    agency: '123',
+                    agencies: [{
+                        name: 'Mock Sub-Agency', type: 'funding', tier: 'subtier', toptier_name: 'Mock Agency'
+                    }],
                     prime_award_types: ["02", "03", "04", "05", "07", "08"],
                     sub_award_types: ['procurement'],
                     place_of_performance_scope: 'foreign',
@@ -294,7 +309,8 @@ describe('BulkDownloadPageContainer', () => {
                         start_date: '11-01-2016'
                     },
                     date_type: 'action_date',
-                    sub_agency: 'Mock Sub-Agency'
+                    sub_agency: 'Mock Sub-Agency',
+                    def_codes: ["L", "M", "N", "O", "P"]
                 }
             };
 
@@ -305,10 +321,9 @@ describe('BulkDownloadPageContainer', () => {
 
             expect(requestDownload).toHaveBeenCalledWith(expectedParams, 'awards');
         });
-
     });
     describe('startAccountDownload', () => {
-        const accountsRedux = Object.assign({}, mockRedux, {
+        const accountsRedux = Object.assign({}, mockProps, {
             dataType: 'accounts'
         });
         it('should make an API request when called', () => {
@@ -337,7 +352,45 @@ describe('BulkDownloadPageContainer', () => {
                     federal_account: '212',
                     submission_types: ['account_balances'],
                     fy: '1989',
-                    quarter: '1'
+                    quarter: '1',
+                    def_codes: ["L", "M", "N", "O", "P"]
+                },
+                file_format: 'csv'
+            };
+
+            const requestDownload = jest.fn();
+            container.instance().requestDownload = requestDownload;
+
+            container.instance().startAccountDownload();
+
+            expect(requestDownload).toHaveBeenCalledWith(expectedParams, 'accounts');
+        });
+        it('should exclude the quarter param when the period key is defined', () => {
+            const container = shallow(<BulkDownloadPageContainer
+                {...{
+                    ...accountsRedux,
+                    bulkDownload: {
+                        ...accountsRedux.bulkDownload,
+                        accounts: {
+                            ...accountsRedux.bulkDownload.accounts,
+                            quarter: '',
+                            period: '5'
+                        }
+                    }
+                }}
+                {...mockActions} />);
+
+            const expectedParams = {
+                account_level: 'treasury_account',
+                filters: {
+                    budget_function: '300',
+                    budget_subfunction: '123',
+                    agency: '123',
+                    federal_account: '212',
+                    submission_types: ['account_balances'],
+                    fy: '1989',
+                    period: '5',
+                    def_codes: ["L", "M", "N", "O", "P"]
                 },
                 file_format: 'csv'
             };
@@ -353,16 +406,16 @@ describe('BulkDownloadPageContainer', () => {
     describe('validateDataType', () => {
         it('should default to custom award data if no type is provided', () => {
             const container = shallow(<BulkDownloadPageContainer
-                {...mockRedux}
+                {...mockProps}
                 {...mockActions} />);
 
             container.instance().validateDataType('');
 
-            expect(Router.history.replace).toHaveBeenLastCalledWith('/download_center/custom_award_data');
+            expect(mockProps.history.replace).toHaveBeenLastCalledWith('/download_center/custom_award_data');
         });
         it('should update the Redux state for a valid data type', () => {
             const container = shallow(<BulkDownloadPageContainer
-                {...mockRedux}
+                {...mockProps}
                 {...mockActions} />);
 
             container.instance().validateDataType('award_data_archive');
@@ -371,12 +424,12 @@ describe('BulkDownloadPageContainer', () => {
         });
         it('should go to the error page for an invalid data type', () => {
             const container = shallow(<BulkDownloadPageContainer
-                {...mockRedux}
+                {...mockProps}
                 {...mockActions} />);
 
             container.instance().validateDataType('test');
 
-            expect(Router.history.replace).toHaveBeenLastCalledWith('/error');
+            expect(mockProps.history.replace).toHaveBeenLastCalledWith('/error');
         });
     });
 });

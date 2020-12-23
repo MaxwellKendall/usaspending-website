@@ -5,6 +5,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+
 import * as redirectHelper from 'helpers/redirectHelper';
 import Analytics from 'helpers/analytics/Analytics';
 
@@ -21,7 +23,8 @@ const propTypes = {
     callToAction: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
     newTab: PropTypes.bool,
-    externalLink: PropTypes.bool
+    externalLink: PropTypes.bool,
+    internalDomain: PropTypes.bool
 };
 
 export default class DownloadDetail extends React.Component {
@@ -43,13 +46,13 @@ export default class DownloadDetail extends React.Component {
             linkProps.rel = 'noopener noreferrer';
         }
         let link = (
-            <a
+            <Link
                 className="download-detail__link"
-                href={this.props.url}
+                to={this.props.url}
                 {...linkProps}
                 onClick={clickedHomepageLink.bind(null, this.props.url.replace('#', ''))}>
                 {this.props.callToAction}
-            </a>
+            </Link>
         );
         if (this.props.externalLink) {
             link = (
@@ -58,6 +61,17 @@ export default class DownloadDetail extends React.Component {
                     onClick={this.redirect}>
                     {this.props.callToAction}
                 </button>
+            );
+        }
+        else if (this.props.internalDomain) {
+            link = (
+                <a
+                    className="download-detail__link"
+                    href={this.props.url}
+                    {...linkProps}
+                    onClick={clickedHomepageLink.bind(null, this.props.url)}>
+                    {this.props.callToAction}
+                </a>
             );
         }
 

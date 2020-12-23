@@ -36,23 +36,12 @@ export default class NAICSFilterGroup extends React.Component {
     }
 
     generateTags() {
-        const tags = [];
-
-        // check to see if an naics code is provided
-        const naics = this.props.filter.values;
-
-        naics.forEach((value) => {
-            const tag = {
-                value: `${value.identifier}`,
-                title: `${value.naics} | ${value.naics_description}`,
-                isSpecial: false,
-                removeFilter: this.removeFilter
-            };
-
-            tags.push(tag);
-        });
-
-        return tags;
+        return this.props.filter.values
+            .map((naics) => ({
+                value: `${naics.identifier}`,
+                title: `${naics.value} - ${naics.label} (${naics.count})`,
+                removeFilter: () => this.removeFilter
+            }));
     }
 
     render() {

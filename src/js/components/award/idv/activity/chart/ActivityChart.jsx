@@ -7,10 +7,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isEqual, min, max } from 'lodash';
 import { scaleLinear } from 'd3-scale';
-import { calculateTreemapPercentage } from 'helpers/moneyFormatter';
+import { calculatePercentage } from 'helpers/moneyFormatter';
 import { nearestQuarterDate } from 'helpers/fiscalYearHelper';
 import RectanglePattern from 'components/sharedComponents/patterns/RectanglePattern';
-import VerticalLine from 'components/sharedComponents/VerticalLine';
+import SVGLine from 'components/sharedComponents/SVGLine';
 import ActivityXAxis from 'components/award/shared/activity/ActivityXAxis';
 import ActivityYAxis from 'components/award/shared/activity/ActivityYAxis';
 import ActivityChartBar from './ActivityChartBar';
@@ -92,7 +92,7 @@ export default class ActivityChart extends React.Component {
                 description
             } = bar;
             // bar styling normal
-            let style = { fill: `url(#normal${index}` };
+            let style = { fill: `url(#normal${index})` };
             // handle overspending style
             if (bar._obligatedAmount > bar._awardedAmount) {
                 style = { fill: "url(#diagonalHatch)" };
@@ -220,7 +220,7 @@ export default class ActivityChart extends React.Component {
             data.y = (385 - data.yPosition) - (this.props.barHeight - 4);
             // create percentage for description
             // not handling bad data as that will be handled elsewhere
-            const percentage = calculateTreemapPercentage(bar._obligatedAmount, bar._awardedAmount);
+            const percentage = calculatePercentage(bar._obligatedAmount, bar._awardedAmount);
             data.description = `A ${bar.grandchild ?
                 'grandchild' : 'child'} award with a start date of ${bar.startDate},
                 an end date of ${bar.endDate},
@@ -348,20 +348,21 @@ export default class ActivityChart extends React.Component {
                         width={graphWidth}
                         padding={padding}
                         ticks={this.state.xTicks}
-                        scale={xScale} />
+                        scale={xScale}
+                        line />
                     <g
                         className="activity-chart-data">
                         {bars}
                         {/* Today Line */}
-                        {xScale && <VerticalLine
-                            xScale={xScale}
+                        {xScale && <SVGLine
+                            scale={xScale}
                             y1={-10}
                             y2={height - padding.bottom}
                             textY={0}
                             text="Today"
-                            xMax={xRange[1]}
-                            xMin={xRange[0]}
-                            xValue={currentDate}
+                            max={xRange[1]}
+                            min={xRange[0]}
+                            position={currentDate}
                             showTextPosition="top"
                             adjustmentX={padding.left} />}
                     </g>

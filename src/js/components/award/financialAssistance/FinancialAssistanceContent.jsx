@@ -5,11 +5,10 @@
 
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import kGlobalConstants from 'GlobalConstants';
 import { glossaryLinks } from 'dataMapping/search/awardType';
-import BaseAwardAmounts from 'models/v2/awardsV2/BaseAwardAmounts';
+import BaseAwardAmounts from 'models/v2/award/BaseAwardAmounts';
 import AwardHistory from 'containers/award/shared/AwardHistorySectionContainer';
-import { awardTypesWithSubawards } from 'dataMapping/awards/awardHistorySection';
+import { awardTypesWithSubawards } from 'dataMapping/award/awardHistorySection';
 import ContractGrantActivityContainer from 'containers/award/shared/ContractGrantActivityContainer';
 import AwardAmountsSection from '../shared/awardAmountsSection/AwardAmountsSection';
 import AdditionalInfo from '../shared/additionalInfo/AdditionalInfo';
@@ -21,8 +20,6 @@ import AwardPageWrapper from '../shared/AwardPageWrapper';
 import { isAwardAggregate } from '../../../helpers/awardSummaryHelper';
 import AwardDescription from '../shared/description/AwardDescription';
 import CFDASection from './CFDASection';
-import ComingSoonSection from '../shared/ComingSoonSection';
-import { contractActivityGrants } from '../shared/InfoTooltipContent';
 
 const propTypes = {
     awardId: PropTypes.string,
@@ -34,15 +31,20 @@ const propTypes = {
 
 const FinancialAssistanceContent = ({
     awardId,
-    overview = { generatedId: '' },
+    overview = { generatedId: '', fileC: { obligations: [] } },
     jumpToSection,
     isSubAwardIdClicked,
     subAwardIdClicked
 }) => {
     const [activeTab, setActiveTab] = useState("transaction");
+    const [CFDAOverviewLinkClicked, setCFDAOverviewLinkClicked] = useState(false);
+
+    const updateCFDAOverviewLinkClicked = (didClick) => {
+        setCFDAOverviewLinkClicked(didClick);
+    };
 
     const glossaryLink = glossaryLinks[overview.type]
-        ? `/#/award/${awardId}?glossary=${glossaryLinks[overview.type]}`
+        ? `/award/${awardId}?glossary=${glossaryLinks[overview.type]}`
         : null;
 
     const jumpToTransactionHistoryTable = () => {
@@ -72,20 +74,10 @@ const FinancialAssistanceContent = ({
 
     const [idLabel, identifier] = isAwardAggregate(overview.generatedId) ? ['URI', overview.uri] : ['FAIN', overview.fain];
     const isGrant = overview.category === 'grant';
-    const grantActivity = () => {
-        if (isGrant) {
-            return (kGlobalConstants.DEV) ? <ContractGrantActivityContainer awardId={awardId} awardType={overview.category} />
-                : <ComingSoonSection
-                    title="Grant Activity"
-                    icon="chart-area"
-                    includeHeader
-                    toolTipContent={contractActivityGrants} />;
-        }
-        return null;
-    };
 
     return (
         <AwardPageWrapper
+            defCodes={overview.defCodes}
             identifier={identifier}
             idLabel={idLabel}
             awardType={overview.category}
@@ -103,6 +95,7 @@ const FinancialAssistanceContent = ({
                     awardType={overview.category}
                     awardId={awardId} />
                 <AwardOverviewRightSection
+                    updateCFDAOverviewLinkClicked={updateCFDAOverviewLinkClicked}
                     jumpToSection={jumpToSection}
                     overview={overview} />
             </AwardSection>
@@ -117,9 +110,19 @@ const FinancialAssistanceContent = ({
                     awardId={awardId} />
             </AwardSection>
             <AwardSection type="row">
-                {grantActivity()}
+                {
+                    isGrant && <ContractGrantActivityContainer
+                        awardId={awardId}
+                        awardType={overview.category}
+                        dates={overview.periodOfPerformance}
+                        jumpToTransactionHistoryTable={jumpToTransactionHistoryTable} />
+                }
                 {!isGrant && (
-                    <CFDASection data={overview.biggestCfda} />
+                    <CFDASection
+                        cfdas={overview.cfdas}
+                        CFDAOverviewLinkClicked={CFDAOverviewLinkClicked}
+                        updateCFDAOverviewLinkClicked={updateCFDAOverviewLinkClicked}
+                        awardTotalObligation={overview._totalObligation} />
                 )}
                 <FederalAccountsSection
                     awardType={overview.category}
@@ -127,7 +130,11 @@ const FinancialAssistanceContent = ({
             </AwardSection>
             {isGrant && (
                 <AwardSection type="row">
-                    <CFDASection data={overview.biggestCfda} />
+                    <CFDASection
+                        cfdas={overview.cfdas}
+                        CFDAOverviewLinkClicked={CFDAOverviewLinkClicked}
+                        updateCFDAOverviewLinkClicked={updateCFDAOverviewLinkClicked}
+                        awardTotalObligation={overview._totalObligation} />
                 </AwardSection>
             )}
             <AwardHistory

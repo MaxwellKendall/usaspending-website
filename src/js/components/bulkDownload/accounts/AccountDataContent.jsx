@@ -6,10 +6,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { isEqual } from 'lodash';
+import { Link } from 'react-router-dom';
+
 import kGlobalConstants from 'GlobalConstants';
 
 import { accountDownloadOptions } from 'dataMapping/bulkDownload/bulkDownloadOptions';
 import { Glossary } from 'components/sharedComponents/icons/Icons';
+import DefCodeFilter from 'components/bulkDownload/sharedFilters/DefCodeFilter';
 
 import AccountLevelFilter from './filters/AccountLevelFilter';
 import AgencyFilter from './filters/AgencyFilter';
@@ -31,7 +34,8 @@ const propTypes = {
     setFederalAccountList: PropTypes.func,
     budgetFunctions: PropTypes.array,
     setBudgetSubfunctionList: PropTypes.func,
-    budgetSubfunctions: PropTypes.array
+    budgetSubfunctions: PropTypes.array,
+    setDefCodes: PropTypes.func
 };
 
 export default class AccountDataContent extends React.Component {
@@ -55,9 +59,7 @@ export default class AccountDataContent extends React.Component {
         this.props.clearAccountFilters();
     }
 
-    handleSubmit(e) {
-        e.preventDefault();
-
+    handleSubmit() {
         this.props.clickedDownload();
     }
 
@@ -71,7 +73,7 @@ export default class AccountDataContent extends React.Component {
             && (accounts.agency.id !== '')
             && (accounts.submissionTypes.length !== 0)
             && (accounts.fy !== '')
-            && (accounts.quarter !== '')
+            && (accounts.quarter !== '' || accounts.period !== '')
         );
 
         this.setState({
@@ -86,9 +88,7 @@ export default class AccountDataContent extends React.Component {
                 <div className="download-center__filters">
                     <h2 className="download-center__title">Custom Account Data</h2>
                     <FilterSelection valid={accounts.budgetFunction.code !== '' || accounts.agency.id !== ''} />
-                    <form
-                        className="download-center-form"
-                        onSubmit={this.handleSubmit}>
+                    <div className="download-center-form">
                         <BudgetFunctionFilter
                             budgetFunctions={this.props.budgetFunctions}
                             budgetSubfunctions={this.props.budgetSubfunctions}
@@ -112,6 +112,7 @@ export default class AccountDataContent extends React.Component {
                             currentAccountLevel={accounts.accountLevel}
                             updateFilter={this.props.updateFilter}
                             valid={accounts.accountLevel !== ''} />
+                        <DefCodeFilter type="accounts" />
                         <SubmissionTypeFilter
                             submissionTypes={accountDownloadOptions.submissionTypes}
                             currentSubmissionTypes={accounts.submissionTypes}
@@ -119,17 +120,18 @@ export default class AccountDataContent extends React.Component {
                             valid={accounts.submissionTypes.length !== 0} />
                         <FiscalYearFilter
                             currentFy={accounts.fy}
-                            currentQuarter={accounts.quarter}
+                            latestSelectedTimePeriod={accounts.period ? accounts.period : accounts.quarter}
                             updateFilter={this.props.updateFilter}
-                            valid={accounts.fy && accounts.quarter} />
+                            valid={(accounts.fy && (accounts.quarter || accounts.period))} />
                         <UserSelections
                             accounts={accounts} />
                         <SubmitButton
+                            handleSubmit={this.handleSubmit}
                             validForm={this.state.validForm}
                             filters={accounts}
                             validDates
                             dataType="accounts" />
-                    </form>
+                    </div>
                     <button className="download-center__reset" onClick={this.resetForm}>
                         Reset form and start over
                     </button>
@@ -143,13 +145,13 @@ export default class AccountDataContent extends React.Component {
                         </p>
                         <p>
                             The data is available on two different levels, <strong>federal account</strong>&nbsp;
-                            <a href="#/download_center/custom_account_data/?glossary=federal-account"><Glossary /></a>
+                            <Link to="/download_center/custom_account_data?glossary=federal-account"><Glossary /></Link>
                             and <strong>treasury account</strong>&nbsp;
-                            <a href="#/download_center/custom_account_data/?glossary=treasury-account-symbol-tas"><Glossary /></a>
+                            <Link to="/download_center/custom_account_data?glossary=treasury-account-symbol-tas"><Glossary /></Link>
                             . Federal account data is essentially a &ldquo;roll-up&rdquo; of multiple treasury account data.
                         </p>
                         <p>
-                            The files available are categorized by type, according to the scope of spending they cover. More information on the different file types can be found in our <a href={`https://files${kGlobalConstants.DEV ? '-nonprod' : ''}.usaspending.gov/docs/Custom+Account+Data+Dictionary.xlsx`}>Custom Account Data Dictionary</a>.
+                            The files available are categorized by type, according to the scope of spending they cover. More information on the different file types can be found in our <a href={`${kGlobalConstants.FILES_SERVER_BASE_URL}/docs/Custom+Account+Data+Dictionary.xlsx`}>Custom Account Data Dictionary</a>.
                         </p>
                     </div>
                     <div className="download-info__section">

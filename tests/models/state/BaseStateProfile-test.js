@@ -4,8 +4,8 @@
  */
 
 import BaseStateProfile from 'models/v2/state/BaseStateProfile';
-import { mockStateApi } from './mockStateApi';
 import kGlobalConstants from 'GlobalConstants';
+import { mockStateApi } from './mockStateApi';
 
 const state = Object.create(BaseStateProfile);
 state.populate(mockStateApi);
@@ -16,6 +16,13 @@ describe('BaseStateProfile', () => {
     });
     it('should format the total awards', () => {
         expect(state.totalAwards).toEqual('555,555');
+    });
+
+    it('should format the face value loan guarantee', () => {
+        expect(state.totalFaceValueLoanAmount).toEqual('$399.2 billion');
+    });
+    it('should format the loan count', () => {
+        expect(state.totalFaceValueLoanPrimeAwards).toEqual('123,123');
     });
     describe('Census data', () => {
         it('should format the population', () => {
@@ -63,7 +70,7 @@ describe('BaseStateProfile', () => {
     });
     describe('State flag image', () => {
         it('should determine the filename based on FIPS', () => {
-            expect(state.flag).toEqual(`https://files${kGlobalConstants.DEV ? '-nonprod' : ''}.usaspending.gov/state_flags/06.png`);
+            expect(state.flag).toEqual(`${kGlobalConstants.FILES_SERVER_BASE_URL}/state_flags/06.png`);
         });
     });
 });

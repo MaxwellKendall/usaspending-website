@@ -7,6 +7,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Set } from 'immutable';
+import { isEqual } from 'lodash';
 
 import SubmitHint from 'components/sharedComponents/filterSidebar/SubmitHint';
 
@@ -45,7 +46,8 @@ export default class TimePeriod extends React.Component {
             description: '',
             isActive: false,
             selectedFY: new Set(),
-            allFY: false
+            allFY: false,
+            clearHint: false
         };
 
         // bind functions
@@ -56,22 +58,31 @@ export default class TimePeriod extends React.Component {
         this.toggleFilters = this.toggleFilters.bind(this);
         this.validateDates = this.validateDates.bind(this);
         this.removeDateRange = this.removeDateRange.bind(this);
+        this.clearHint = this.clearHint.bind(this);
     }
 
     componentDidMount() {
         this.prepopulateDatePickers();
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.synchronizeDatePickers(nextProps);
-    }
-
     componentDidUpdate(prevProps) {
-        if (prevProps.dirtyFilters && prevProps.dirtyFilters !== this.props.dirtyFilters) {
+        if (!isEqual(prevProps, this.props)) {
+            this.synchronizeDatePickers(this.props);
+        }
+        if (this.state.clearHint) {
+            this.clearHint(false);
+        }
+        if (this.props.dirtyFilters && prevProps.dirtyFilters !== this.props.dirtyFilters) {
             if (this.hint) {
                 this.hint.showHint();
             }
         }
+    }
+
+    clearHint(val) {
+        this.setState({
+            clearHint: val
+        });
     }
 
     prepopulateDatePickers() {
@@ -134,7 +145,9 @@ export default class TimePeriod extends React.Component {
         }
     }
 
+
     toggleFilters(e) {
+        this.clearHint(true);
         this.props.changeTab(e.target.value);
     }
 
@@ -206,6 +219,7 @@ export default class TimePeriod extends React.Component {
     }
 
     removeDateRange() {
+        this.clearHint(true);
         this.props.updateFilter({
             dateType: 'dr',
             startDate: null,
@@ -316,10 +330,12 @@ export default class TimePeriod extends React.Component {
                     </ul>
                     { showFilter }
                     { errorDetails }
-                    <SubmitHint
-                        ref={(component) => {
-                            this.hint = component;
-                        }} />
+                    {!this.state.clearHint &&
+                        <SubmitHint
+                            ref={(component) => {
+                                this.hint = component;
+                            }} />
+                    }
                 </div>
             </div>
         );

@@ -1,0 +1,115 @@
+/**
+ * QuarterPickerWithFY
+ * Created by Max Kendall 10/25/2020
+ * TODOs:
+ * 1. Decouple this component from the fy/period data for accounts. 😰
+ **/
+
+import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
+import { QuarterPicker } from 'data-transparency-ui';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { setAccountDataAsOfDate as setLatestSubmissionDate } from 'redux/actions/account/accountActions';
+import { getLatestPeriodAsMoment, fetchAllSubmissionDates } from 'helpers/accountHelper';
+import { earliestExplorerYear } from 'helpers/fiscalYearHelper';
+import { getLatestSubmissionPeriodInFy } from 'helpers/downloadHelper';
+import {
+    periods,
+    getPeriodsPerQuarterByFy
+} from 'containers/explorer/detail/helpers/explorerQuarters';
+import FYPicker from 'components/sharedComponents/pickers/FYPicker';
+
+const QuarterPickerWithFY = ({
+    handlePickedYear,
+    selectedFy,
+    handleQuarterPickerSelection,
+    latestSelectedTimeInterval
+}) => {
+    const [periodsPerQuarter, setPeriodsPerQuarter] = useState(getPeriodsPerQuarterByFy(parseInt(selectedFy, 10)));
+    const [allPeriods, setAllPeriods] = useState([]);
+    const [disabledPeriodsInFy, setDisabledPeriodsInFy] = useState([]);
+    const latestFy = useSelector((state) => state.account.dataAsOf);
+    const request = useRef();
+    const dispatch = useDispatch();
+
+    const pickedYear = (year) => {
+        if (parseInt(year, 10) === latestFy.year()) {
+            const { period: latestSubmission } = getLatestSubmissionPeriodInFy(year, allPeriods);
+            handlePickedYear(year, latestSubmission);
+        }
+        else {
+            handlePickedYear(year, 4);
+        }
+    };
+
+    useEffect(() => {
+        setPeriodsPerQuarter(getPeriodsPerQuarterByFy(parseInt(selectedFy, 10)));
+    }, [selectedFy]);
+
+    useEffect(() => {
+        //  when the selectedFY changes or the periods change, update the disabled periods/quarters
+        if (parseInt(selectedFy, 10) === earliestExplorerYear) {
+            setDisabledPeriodsInFy(['1']);
+        }
+        else if (selectedFy && allPeriods.length) {
+            const latestAvailablePeriodInFy = getLatestSubmissionPeriodInFy(selectedFy, allPeriods);
+            const allAvailablePeriodsInFy = periods.filter((period) => parseInt(period, 10) <= latestAvailablePeriodInFy.period);
+            setDisabledPeriodsInFy(periods.filter((period) => !allAvailablePeriodsInFy.includes(period)));
+        }
+    }, [selectedFy, allPeriods]);
+
+    useEffect(() => {
+        // fetch periods on first render
+        if (!allPeriods.length) {
+            if (request.current) {
+                request.current.cancel();
+            }
+            request.current = fetchAllSubmissionDates();
+            request.current.promise
+                .then(({ data: { available_periods: availablePeriods } }) => {
+                    const latestPeriodAsMoment = getLatestPeriodAsMoment(availablePeriods);
+                    setAllPeriods(availablePeriods);
+                    if (!latestFy) {
+                        // updating latest time period
+                        dispatch(setLatestSubmissionDate(latestPeriodAsMoment));
+                    }
+                    // set default selectedFY to latest
+                    handlePickedYear(`${latestPeriodAsMoment.year()}`, getLatestSubmissionPeriodInFy(latestPeriodAsMoment.year(), availablePeriods).period);
+                    request.current = null;
+                });
+        }
+        return () => {
+            if (request.current) {
+                request.current.cancel();
+            }
+        };
+    }, []);
+
+    return (
+        <div className="quarter-picker">
+            <div className="quarter-picker__fy">
+                <FYPicker
+                    isLoading={!latestFy}
+                    latestFy={latestFy}
+                    fy={selectedFy}
+                    onClick={pickedYear} />
+            </div>
+            <QuarterPicker
+                showPeriods
+                periodsPerQuarter={periodsPerQuarter}
+                selectedPeriods={[latestSelectedTimeInterval]}
+                disabledPeriods={disabledPeriodsInFy}
+                handleSelection={handleQuarterPickerSelection} />
+        </div>
+    );
+};
+
+QuarterPickerWithFY.propTypes = {
+    handlePickedYear: PropTypes.func,
+    handleQuarterPickerSelection: PropTypes.func,
+    selectedFy: PropTypes.string,
+    latestSelectedTimeInterval: PropTypes.string
+};
+
+export default QuarterPickerWithFY;

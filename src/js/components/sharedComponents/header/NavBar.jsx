@@ -1,10 +1,16 @@
 import React from 'react';
-import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import Analytics from 'helpers/analytics/Analytics';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import Modal from 'react-aria-modal';
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
 
+import Analytics from 'helpers/analytics/Analytics';
 import GlossaryButtonWrapperContainer from 'containers/glossary/GlossaryButtonWrapperContainer';
 import { searchOptions, profileOptions, downloadOptions } from 'dataMapping/navigation/menuOptions';
+import EmailSignUp from 'components/homepage/EmailSignUp';
 
+import { DEV } from '../../../GlobalConstants';
 import NavBarGlossaryLink from './NavBarGlossaryLink';
 import Dropdown from './Dropdown';
 import MobileNav from './mobile/MobileNav';
@@ -21,7 +27,8 @@ export default class NavBar extends React.Component {
         super(props);
 
         this.state = {
-            showMobileNav: false
+            showMobileNav: false,
+            showStayInTouchModal: false
         };
 
         this.siteBody = null;
@@ -59,25 +66,47 @@ export default class NavBar extends React.Component {
         }
     }
 
-    render() {
-        let mobileNav = null;
-        if (this.state.showMobileNav) {
-            mobileNav = (
-                <MobileNav
-                    hideMobileNav={this.hideMobileNav} />
-            );
-        }
+    toggleModal = () => {
+        this.setState({ showStayInTouchModal: !this.state.showStayInTouchModal });
+    }
 
+    render() {
         return (
             <nav
                 className="site-navigation"
                 aria-label="Site navigation">
+                <Modal
+                    className="email-sign-up__modal"
+                    mounted={this.state.showStayInTouchModal}
+                    onExit={this.toggleModal}
+                    titleText="Stay in Touch"
+                    dialogClass="stay-in-touch-modal"
+                    verticallyCenter
+                    escapeExits>
+                    <div className="usa-dt-modal">
+                        <div className="usa-dt-modal__header">
+                            <h1 className="usa-dt-modal__title">
+                                Stay in touch
+                            </h1>
+                            <button
+                                className="usa-dt-modal__close-button"
+                                onClick={this.toggleModal}
+                                title="Close"
+                                aria-label="Close">
+                                <FontAwesomeIcon icon="times" size="lg" />
+                            </button>
+                        </div>
+                        <div className="usa-dt-modal__body">
+                            <EmailSignUp closeModal={this.toggleModal} />
+                        </div>
+                    </div>
+                </Modal>
                 <div className="site-navigation__wrapper">
                     <div className="site-navigation__logo site-logo">
                         <div className="site-logo__wrapper" id="logo">
-                            <a
+                            <Link
                                 className="site-logo__link"
-                                href="#/"
+                                to="/"
                                 title="USAspending.gov Home"
                                 aria-label="USAspending.gov Home"
                                 onClick={clickedHeaderLink.bind(null, '/')}>
@@ -86,7 +115,7 @@ export default class NavBar extends React.Component {
                                     src="img/logo.png"
                                     srcSet="img/logo.png 1x, img/logo@2x.png 2x"
                                     alt="USAspending.gov" />
-                            </a>
+                            </Link>
                         </div>
                     </div>
                     <div className="site-navigation__mobile mobile-hamburger">
@@ -99,28 +128,41 @@ export default class NavBar extends React.Component {
                         </div>
                     </div>
                     <div className="mobile-nav-animations">
-                        <CSSTransitionGroup
-                            transitionName="mobile-nav-slide"
-                            transitionLeaveTimeout={195}
-                            transitionEnterTimeout={225}
-                            transitionLeave>
-                            {mobileNav}
-                        </CSSTransitionGroup>
+                        <TransitionGroup>
+                            {this.state.showMobileNav && (
+                                <CSSTransition
+                                    classNames="mobile-nav-slide"
+                                    timeout={{ enter: 225, exit: 195 }}
+                                    exit>
+                                    <MobileNav hideMobileNav={this.hideMobileNav} />
+                                </CSSTransition>
+                            )}
+                        </TransitionGroup>
                     </div>
                     <div className="site-navigation__menu full-menu">
                         <ul
                             className="full-menu__list"
                             role="menu">
+                            {DEV && (
+                                <li
+                                    className="full-menu__item"
+                                    role="menuitem">
+                                    <button className="full-menu__item--button" onClick={this.toggleModal}>
+                                        <FontAwesomeIcon icon={faEnvelope} />
+                                        Stay In Touch
+                                    </button>
+                                </li>
+                            )}
                             <li
                                 className="full-menu__item"
                                 role="menuitem">
-                                <a
+                                <Link
                                     className="full-menu__link"
-                                    href="#/explorer"
+                                    to="/explorer"
                                     title="Spending Explorer: Navigate the levels of government spending from top to bottom"
                                     onClick={clickedHeaderLink.bind(null, '/explorer')}>
-                                    <span>Spending Explorer</span>
-                                </a>
+                                    Spending Explorer
+                                </Link>
                             </li>
                             <li
                                 className="full-menu__item"

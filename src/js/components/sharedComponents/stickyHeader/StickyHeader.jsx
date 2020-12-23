@@ -3,7 +3,7 @@
  * Created by Mike Bray 02/02/2018
  **/
 
-import React, { useState, createRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 
@@ -18,7 +18,7 @@ export const useDynamicStickyClass = (stickyRef, fixedStickyBreakpoint = null) =
     const [isSticky, setIsSticky] = useState(false);
     return [
         isSticky,
-        // scrollPosition at which we apply the sticky-icky
+        // scrollPosition at which we apply the sticky-class
         dynamicStickyBreakpoint,
         // setSticky
         setIsSticky,
@@ -50,11 +50,11 @@ export const useDynamicStickyClass = (stickyRef, fixedStickyBreakpoint = null) =
     ];
 };
 
-const stickyHeader = createRef();
 
 const StickyHeader = ({
     children
 }) => {
+    const stickyHeader = useRef(null);
     const [
         isSticky,
         ,
@@ -79,7 +79,7 @@ const StickyHeader = ({
     return (
         <div className="sticky-header" ref={stickyHeader}>
             <div className={`sticky-header__container ${stickyClass}`}>
-                <div className="sticky-header__header" aria-labelledby="main-focus">
+                <div className="sticky-header__header" id="main-focus">
                     {children}
                 </div>
             </div>

@@ -5,11 +5,7 @@
 
 import { Set } from 'immutable';
 
-import { defaultQuarters } from 'containers/explorer/detail/helpers/explorerQuarters';
-
 import * as AwardFilterFunctions from '../search/filters/awardFilterFunctions';
-
-const initialQuarters = defaultQuarters();
 
 export const initialState = {
     dataType: '',
@@ -22,6 +18,7 @@ export const initialState = {
             id: '',
             name: 'Select an Agency'
         },
+        agencyType: 'awarding_agency',
         subAgency: {
             id: '',
             name: 'Select a Sub-Agency'
@@ -42,6 +39,7 @@ export const initialState = {
             startDate: '',
             endDate: ''
         },
+        defCodes: [],
         columns: [],
         fileFormat: 'csv'
     },
@@ -55,6 +53,7 @@ export const initialState = {
             code: '',
             title: 'Select a Budget Sub-Function'
         },
+        defCodes: [],
         agency: {
             id: '',
             name: 'Select an Agency'
@@ -64,8 +63,9 @@ export const initialState = {
             name: 'Select a Federal Account'
         },
         submissionTypes: ['accountBalances'],
-        fy: `${initialQuarters.year}`,
-        quarter: `${Math.max(...initialQuarters.quarters)}`,
+        fy: null,
+        quarter: null,
+        period: null,
         fileFormat: 'csv'
     },
     download: {
@@ -96,6 +96,22 @@ const bulkDownloadReducer = (state = initialState, action) => {
                 [action.dataType]: dataType
             });
         }
+
+        case 'SET_BULK_DOWNLOAD_DEFC': {
+            const { downloadType, defCodes } = action;
+            // replacing existing state of redux.bulkDownload with a brand new object, with a new reference value in memory.
+            return {
+                // copying redux.bulkDownload.award
+                ...state,
+                [downloadType]: {
+                    // copying redux.bulkDownload.account
+                    ...state[downloadType],
+                    // an array of strings "L", "M" etc...
+                    defCodes
+                }
+            };
+        }
+
         case 'UPDATE_DOWNLOAD_FILTER': {
             const { dataType, name, value } = action;
             if (name === 'submissionTypes') {

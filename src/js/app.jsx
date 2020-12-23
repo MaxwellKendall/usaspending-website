@@ -1,47 +1,8 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { hot } from "react-hot-loader";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import {
-    faAngleDown,
-    faAngleRight,
-    faAngleLeft,
-    faBan,
-    faBook,
-    faBuilding,
-    faCalendarAlt,
-    faChartArea,
-    faChartBar,
-    faChartPie,
-    faCheckSquare,
-    faCheckCircle,
-    faChevronDown,
-    faChevronUp,
-    faChevronRight,
-    faEllipsisH,
-    faExternalLinkAlt,
-    faHandsHelping,
-    faInfo,
-    faInfoCircle,
-    faLandmark,
-    faLevelUpAlt,
-    faMapMarkerAlt,
-    faMinusSquare,
-    faPencilAlt,
-    faSearch,
-    faSitemap,
-    faSpinner,
-    faSquare,
-    faTable,
-    faTag,
-    faThLarge,
-    faTimes,
-    faUserTie,
-    faShareAlt,
-    faEnvelope,
-    faLink
-} from "@fortawesome/free-solid-svg-icons";
 import AppContainer from 'containers/AppContainer';
+import registerIcons from './registerIcons';
 
 /**
  * babel 7 removed the ECMAScript proposals from babel-polyfill.
@@ -51,45 +12,7 @@ import AppContainer from 'containers/AppContainer';
 require("core-js");
 require('helpers/rafPolyfill');
 
-library.add(
-    faAngleDown,
-    faAngleRight,
-    faAngleLeft,
-    faBan,
-    faBook,
-    faBuilding,
-    faCalendarAlt,
-    faChartArea,
-    faChartBar,
-    faChartPie,
-    faCheckSquare,
-    faCheckCircle,
-    faChevronDown,
-    faChevronUp,
-    faChevronRight,
-    faEllipsisH,
-    faExternalLinkAlt,
-    faHandsHelping,
-    faInfo,
-    faInfoCircle,
-    faLandmark,
-    faLevelUpAlt,
-    faMapMarkerAlt,
-    faMinusSquare,
-    faPencilAlt,
-    faSearch,
-    faSitemap,
-    faSpinner,
-    faSquare,
-    faTable,
-    faTag,
-    faThLarge,
-    faTimes,
-    faUserTie,
-    faShareAlt,
-    faEnvelope,
-    faLink
-);
+registerIcons();
 
 const appDiv = document.getElementById('app');
 const App = render(

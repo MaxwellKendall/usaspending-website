@@ -47,12 +47,16 @@ export class TimePeriodContainer extends React.Component {
         this.generateTimePeriods();
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.filterTimePeriodType !== this.props.filterTimePeriodType) {
-            this.setState({
-                activeTab: nextProps.filterTimePeriodType
-            });
+    componentDidUpdate(prevProps) {
+        if (prevProps.filterTimePeriodType !== this.props.filterTimePeriodType) {
+            this.setUpdateState(this.props);
         }
+    }
+
+    setUpdateState(props) {
+        this.setState({
+            activeTab: props.filterTimePeriodType
+        });
     }
 
     generateTimePeriods() {
@@ -121,10 +125,16 @@ export class TimePeriodContainer extends React.Component {
             const appliedValue = this.props.appliedFilters[appliedField];
             const activeValue = this.props[activeField];
 
+            // do not set time filter to dirty when 1 checkbox is unchecked
+            if ((activeValue && activeValue.size === 0) && (appliedValue && appliedValue.size >= 1)) {
+                return true;
+            }
+
             if (!is(appliedValue, activeValue)) {
                 // field has changed
                 return false;
             }
+
 
             return true;
         });

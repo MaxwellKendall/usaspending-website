@@ -5,16 +5,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import Router from 'containers/router/Router';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { withRouter } from 'react-router-dom';
 
 import { dropdownScopes, rootScopes, icons } from 'dataMapping/explorer/dropdownScopes';
 import { sidebarTypes } from 'dataMapping/explorer/sidebarStrings';
-
+import ViewTypeButton from 'components/sharedComponents/buttons/ViewTypeButton';
 import DropdownItem from './DropdownItem';
-import ViewTypeButton from '../../../../sharedComponents/buttons/ViewTypeButton';
 
 const propTypes = {
     isRoot: PropTypes.bool,
@@ -23,10 +20,11 @@ const propTypes = {
     root: PropTypes.string,
     changeSubdivisionType: PropTypes.func,
     changeView: PropTypes.func,
-    viewType: PropTypes.string
+    viewType: PropTypes.string,
+    history: PropTypes.object
 };
 
-export default class BreakdownDropdown extends React.Component {
+export class BreakdownDropdown extends React.Component {
     constructor(props) {
         super(props);
 
@@ -42,19 +40,19 @@ export default class BreakdownDropdown extends React.Component {
         this.handleClickOutside = this.handleClickOutside.bind(this);
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.prepareOptions(this.props);
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.active !== this.props.active) {
-            this.prepareOptions(nextProps);
+    componentDidUpdate(prevProps) {
+        if (prevProps.active !== this.props.active) {
+            this.prepareOptions(this.props);
         }
-        else if (nextProps.root !== this.props.root) {
-            this.prepareOptions(nextProps);
+        else if (prevProps.root !== this.props.root) {
+            this.prepareOptions(this.props);
         }
-        else if (nextProps.isRoot !== this.props.isRoot) {
-            this.prepareOptions(nextProps);
+        else if (prevProps.isRoot !== this.props.isRoot) {
+            this.prepareOptions(this.props);
         }
     }
 
@@ -133,8 +131,8 @@ export default class BreakdownDropdown extends React.Component {
             expanded: false
         }, () => {
             if (this.props.isRoot && item !== this.props.root) {
-                // redirect to the correct root URL
-                Router.history.push(`/explorer/${item}`);
+                // TODO redirect to the correct root URL
+                this.props.history.push(`/explorer/${item}`);
             }
             else if (!this.props.isRoot) {
                 this.props.changeSubdivisionType(item);
@@ -207,3 +205,4 @@ export default class BreakdownDropdown extends React.Component {
 }
 
 BreakdownDropdown.propTypes = propTypes;
+export default withRouter(BreakdownDropdown);

@@ -6,7 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { hierarchy, treemap, treemapBinary, treemapSlice } from 'd3-hierarchy';
-import { throttle, remove, find } from 'lodash';
+import { throttle, remove, find, isEqual } from 'lodash';
 import * as MoneyFormatter from 'helpers/moneyFormatter';
 import * as TreemapHelper from 'helpers/treemapHelper';
 import { awardTypeLabels } from 'dataMapping/state/awardTypes';
@@ -17,8 +17,7 @@ import AwardTypeTooltip from './AwardTypeTooltip';
 
 const propTypes = {
     awardBreakdown: PropTypes.array,
-    totalAmount: PropTypes.number,
-    hasNegatives: PropTypes.bool
+    totalAmount: PropTypes.number
 };
 
 export default class AwardBreakdownTreeMap extends React.Component {
@@ -46,9 +45,9 @@ export default class AwardBreakdownTreeMap extends React.Component {
         window.addEventListener('resize', this.handleWindowResize);
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.awardBreakdown.length > 0) {
-            this.buildVirtualTree(nextProps);
+    componentDidUpdate(prevProps) {
+        if (!isEqual(prevProps, this.props) && this.props.awardBreakdown.length > 0) {
+            this.buildVirtualTree(this.props);
         }
     }
 
@@ -206,7 +205,7 @@ export default class AwardBreakdownTreeMap extends React.Component {
             tooltip = (
                 <AwardTypeTooltip
                     value={MoneyFormatter.formatTreemapValues(awardType.amount)}
-                    percentage={MoneyFormatter.calculateTreemapPercentage(
+                    percentage={MoneyFormatter.calculatePercentage(
                         awardType.amount, this.props.totalAmount)
                     }
                     description={awardTypeDefinition}
@@ -222,16 +221,6 @@ export default class AwardBreakdownTreeMap extends React.Component {
     }
 
     render() {
-        let greatThanOneHundredDescription = null;
-        if (this.props.hasNegatives) {
-            greatThanOneHundredDescription = (
-                <p>
-                    <em><strong>Note:</strong> The award types below add up to more
-                        than 100% due to negative values not shown here.
-                    </em>
-                </p>
-            );
-        }
         const cells = this.state.virtualChart.map((cell) => (
             <AwardTypeCell
                 {...cell}
@@ -247,7 +236,6 @@ export default class AwardBreakdownTreeMap extends React.Component {
             <div className="award-breakdown__treemap">
                 <div className="usa-da-treemap-section">
                     <div className="treemap-inner-wrap">
-                        {greatThanOneHundredDescription}
                         { this.createTooltip() }
                         <div
                             className="tree-wrapper"

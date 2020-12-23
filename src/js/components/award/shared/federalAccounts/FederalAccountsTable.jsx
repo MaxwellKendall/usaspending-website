@@ -7,8 +7,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { map, uniqueId } from 'lodash';
 import { Pagination } from 'data-transparency-ui';
+import { Link } from 'react-router-dom';
 
-import tableMapping from 'dataMapping/awards/federalAccountSectionTable';
+import tableMapping from 'dataMapping/award/federalAccountSectionTable';
 import StateLandingTableSorter from 'components/stateLanding/table/StateLandingTableSorter';
 import ResultsTableLoadingMessage from 'components/search/table/ResultsTableLoadingMessage';
 import ResultsTableErrorMessage from 'components/search/table/ResultsTableErrorMessage';
@@ -57,16 +58,16 @@ export default class FederalAccountsTable extends React.Component {
                     let cellData = account[key];
                     if (key === 'federalAccountName') {
                         cellData = (
-                            <a href={`${header.href}${account.federalAccount}`}>
+                            <Link to={`/federal_account/${account.federalAccount}`}>
                                 {account[key]}
-                            </a>
+                            </Link>
                         );
                     }
                     else if (key === 'fundingAgencyName') {
                         cellData = (
-                            <a href={`${header.href}${account._fundingAgencyId}`}>
+                            <Link to={`/agency/${account._fundingAgencyId}`}>
                                 {`(${account._fundingAgencyAbbreviation}) ${account[key]}`}
-                            </a>
+                            </Link>
                         );
                     }
                     return (

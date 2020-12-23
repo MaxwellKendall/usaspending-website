@@ -1,5 +1,5 @@
 // Vendor -------------- //
-@import '~data-transparency-ui/styles/dist';
+@import '~data-transparency-ui/dist/data-transparency-ui.css';
 @import 'lib/bourbon/bourbon';
 @import 'lib/neat/neat';
 @import 'lib/normalize';
@@ -36,7 +36,7 @@
 @import 'components/skipnav';
 @import 'components/viewTypeButton';
 @import 'components/tooltips/index';
-
+@import 'components/baseModal';
 
 // Mixins ------------------ //
 @import 'mixins/background';

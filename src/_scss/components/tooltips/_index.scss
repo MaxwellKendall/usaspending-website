@@ -1,15 +1,29 @@
 .tooltip-wrapper {
+    @include media($tablet-screen) {
+        @include display(flex);
+    }
     div:first-of-type {
-        display: flex;
+        .tooltip-spacer .tooltip .tooltip__interior .tooltip-pointer {
+            &.left {
+                left: rem(-8);
+            }
+            &.right {
+                right: rem(-8);
+            }
+        }
     }
     &.award-amounts-tt__wrapper div:first-of-type {
         width: 100%;
         height: 100%;
     }
     &.award-section-tt div:first-of-type {
-        flex-direction: column;
+        @include flex-direction(column)
     }
     .tooltip__content {
         @import './customTooltipContent';
+    }
+
+    .tooltip .tooltip__interior .tooltip-pointer.bottom {
+        top: rem(-8);
     }
 }

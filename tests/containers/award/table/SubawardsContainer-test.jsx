@@ -9,7 +9,7 @@ import { mount, shallow } from 'enzyme';
 import { SubawardsContainer } from
     'containers/award/table/SubawardsContainer';
 
-import BaseSubawardRow from 'models/v2/awards/subawards/BaseSubawardRow';
+import BaseSubawardRow from 'models/v2/award/subawards/BaseSubawardRow';
 
 import { mockSubawards } from '../mockSubawards';
 import { mockParams } from '../mockAward';
@@ -18,7 +18,7 @@ jest.mock('helpers/searchHelper', () => require('../mockSearchHelper'));
 
 // force Jest to use native Node promises
 // see: https://facebook.github.io/jest/docs/troubleshooting.html#unresolved-promises
-global.Promise = require.requireActual('promise');
+global.Promise = jest.requireActual('promise');
 
 // mock the child component by replacing it with a function that returns a null element
 jest.mock('components/award/subawards/SubawardsTable', () =>

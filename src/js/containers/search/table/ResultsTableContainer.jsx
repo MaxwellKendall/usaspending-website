@@ -9,7 +9,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isCancel } from 'axios';
 import { uniqueId, intersection } from 'lodash';
+import { withRouter } from 'react-router-dom';
 
+import tableTabsTooltips from 'dataMapping/shared/tableTabsTooltips';
 import SearchAwardsOperation from 'models/search/SearchAwardsOperation';
 import { subAwardIdClicked } from 'redux/actions/search/searchSubAwardTableActions';
 import * as SearchHelper from 'helpers/searchHelper';
@@ -17,8 +19,11 @@ import Analytics from 'helpers/analytics/Analytics';
 
 import { awardTypeGroups, subawardTypeGroups } from 'dataMapping/search/awardType';
 
-import { defaultColumns, defaultSort } from
-    'dataMapping/search/awardTableColumns';
+import {
+    defaultColumns,
+    defaultSort,
+    apiFieldByTableColumnName
+} from 'dataMapping/search/awardTableColumns';
 import { awardTableColumnTypes } from 'dataMapping/search/awardTableColumnTypes';
 import { measureTableHeader } from 'helpers/textMeasurement';
 
@@ -32,7 +37,8 @@ const propTypes = {
     setAppliedFilterCompletion: PropTypes.func,
     noApplied: PropTypes.bool,
     subaward: PropTypes.bool,
-    subAwardIdClicked: PropTypes.func
+    subAwardIdClicked: PropTypes.func,
+    location: PropTypes.object
 };
 
 const tableTypes = [
@@ -59,7 +65,8 @@ const tableTypes = [
     {
         label: 'Loans',
         internal: 'loans',
-        enabled: true
+        enabled: true,
+        tooltip: tableTabsTooltips('loans')
     },
     {
         label: 'Other',
@@ -115,17 +122,29 @@ export class ResultsTableContainer extends React.Component {
         // we can't hide the table entirely because the viewport is required to calculate the
         // row rendering
         this.loadColumns();
-        this.pickDefaultTab();
+        if (SearchHelper.isSearchHashReady(this.props.location.pathname)) {
+            this.pickDefaultTab();
+        }
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.filters !== this.props.filters && !this.props.noApplied) {
+        const filtersChanged = !SearchHelper.areFiltersEqual(prevProps.filters, this.props.filters);
+        if (filtersChanged && !this.props.noApplied) {
             // filters changed, update the search object
             this.pickDefaultTab();
         }
         else if (prevProps.subaward !== this.props.subaward && !this.props.noApplied) {
             // subaward toggle changed, update the search object
             this.pickDefaultTab();
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.searchRequest) {
+            this.searchRequest.cancel();
+        }
+        if (this.tabCountRequest) {
+            this.tabCountRequest.cancel();
         }
     }
 
@@ -136,7 +155,7 @@ export class ResultsTableContainer extends React.Component {
         const columns = tableTypes.concat(subTypes).reduce((cols, type) => {
             const visibleColumns = defaultColumns(type.internal).map((data) => data.title);
             const parsedColumns = defaultColumns(type.internal).reduce((parsedCols, data) => Object.assign({}, parsedCols, {
-                [data.title]: this.createColumn(data.displayName, data.title)
+                [data.title]: this.createColumn(data)
             }), {});
 
             return Object.assign({}, cols, {
@@ -151,7 +170,7 @@ export class ResultsTableContainer extends React.Component {
         });
     }
 
-    createColumn(displayName, title) {
+    createColumn(col) {
         // create an object that integrates with the expected column data structure used by
         // the table component
         // const dataType = awardTableColumnTypes[title];
@@ -162,15 +181,16 @@ export class ResultsTableContainer extends React.Component {
 
         // BODGE: Temporarily only allow descending columns
         const direction = 'desc';
+        const width = col.customWidth || measureTableHeader(col.displayName || col.title);
 
-        const column = {
-            columnName: title,
-            displayName: displayName || title,
-            width: measureTableHeader(displayName || title),
+        return {
+            columnName: col.title,
+            displayName: col.displayName || col.title,
+            subtitle: col.subtitle || '',
+            width,
+            background: col.background || '',
             defaultDirection: direction
         };
-
-        return column;
     }
 
     pickDefaultTab() {
@@ -311,7 +331,12 @@ export class ResultsTableContainer extends React.Component {
         columnVisibility.forEach((field) => {
             if (!requestFields.includes(field)) {
                 // Prevent duplicates in the list of fields to request
-                requestFields.push(field);
+                if (Object.keys(apiFieldByTableColumnName).includes(field)) {
+                    requestFields.push(apiFieldByTableColumnName[field]);
+                }
+                else {
+                    requestFields.push(field);
+                }
             }
         });
 
@@ -493,4 +518,4 @@ export default connect(
         ),
         dispatch
     )
-)(ResultsTableContainer);
+)(withRouter(ResultsTableContainer));

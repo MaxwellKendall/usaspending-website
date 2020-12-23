@@ -3,11 +3,13 @@
  * Created by David Trinh 10/6/18
  */
 
-import { mockContract, mockIdv } from '../../models/awardsV2/mockAwardApi';
+import { mockContract, mockIdv } from '../../models/award/mockAwardApi';
 
 export const mockParams = {
-    params: {
-        awardId: '1234'
+    match: {
+        params: {
+            awardId: '1234'
+        }
     },
     award: {
         id: '1234',
@@ -23,7 +25,8 @@ export const mockActions = {
     setDownloadExpectedUrl: jest.fn(),
     setDownloadExpectedFile: jest.fn(),
     setDownloadPending: jest.fn(),
-    setDownloadCollapsed: jest.fn()
+    setDownloadCollapsed: jest.fn(),
+    setIdvDetails: jest.fn()
 };
 
 export const mockRedux = {
@@ -31,7 +34,7 @@ export const mockRedux = {
         id: '1234',
         category: 'idv',
         overview: mockIdv,
-        counts: {
+        idvDetails: {
             idvs: 45,
             contracts: 52
         }

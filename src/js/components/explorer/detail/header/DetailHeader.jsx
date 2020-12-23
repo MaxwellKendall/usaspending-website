@@ -5,6 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 import moment from 'moment';
 import Analytics from 'helpers/analytics/Analytics';
@@ -17,11 +18,13 @@ import TruncationWarning from './TruncationWarning';
 
 const propTypes = {
     within: PropTypes.string,
+    activeSubdivision: PropTypes.string,
     fy: PropTypes.string,
     lastUpdate: PropTypes.string,
     total: PropTypes.number,
     title: PropTypes.string,
     id: PropTypes.string,
+    link: PropTypes.bool,
     parent: PropTypes.string,
     isTruncated: PropTypes.bool,
     isLoading: PropTypes.bool
@@ -62,28 +65,28 @@ const dataType = (type, parent) => {
     );
 };
 
-const heading = (type, title, id) => {
+const heading = (type, title, id, link) => {
     if (type === 'Federal Account') {
         return (
             <h2 className="detail-header__title">
-                <a
-                    href={`/#/federal_account/${id}`}
+                <Link
+                    to={`/federal_account/${id}`}
                     className="detail-header__title-link"
                     onClick={exitExplorer.bind(null, `/federal_account/${id}`)}>
                     {title}
-                </a>
+                </Link>
             </h2>
         );
     }
     else if (type === 'Agency') {
         let header = (
-            <a
-                href={`/#/agency/${id}`}
+            <Link
+                to={`/agency/${id}`}
                 className="detail-header__title-link"
                 onClick={exitExplorer.bind(null, `/agency/${id}`)}>
                 {title}
-            </a>);
-        if (title === "Unreported Data") {
+            </Link>);
+        if (title === "Unreported Data" || link === false) {
             header = (
                 <span className="detail-header__title">
                     {title}
@@ -108,7 +111,7 @@ const DetailHeader = (props) => {
     let truncationWarning = null;
     if (props.isTruncated) {
         truncationWarning = (
-            <TruncationWarning />
+            <TruncationWarning activeSubdivision={props.activeSubdivision} />
         );
     }
 
@@ -119,7 +122,7 @@ const DetailHeader = (props) => {
                     <div className="detail-header__subtitle">
                         You&apos;ve chosen
                     </div>
-                    {heading(type, props.title, props.id)}
+                    {heading(type, props.title, props.id, props.link)}
                     {dataType(type, props.parent)}
                 </div>
                 <div className="right-side">

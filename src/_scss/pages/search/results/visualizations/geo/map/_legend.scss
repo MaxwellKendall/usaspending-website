@@ -1,4 +1,6 @@
 .map-legend {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
     background-color: $color-white;
     bottom: rem(80);
     @include media($tablet-screen) {
@@ -6,11 +8,47 @@
     }
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
     left: rem(15);
-    padding: rem(12) $global-pad;
     position: absolute;
     z-index: 2;
-    ul {
+    .map-legend-header {
+      padding: 0.65rem $global-pad;
+      border-bottom: 2px solid $color-gray-lightest;
+      .map-legend-header__title {
+        display: flex;
+        align-items: center;
+        .map-legend-header__title-text {
+          margin: 0;
+          font-size: 1.4rem;
+          font-weight: $font-semibold;
+          padding-bottom: 0.6rem;
+        }
+        .tooltip-wrapper {
+          .tooltip-pointer {
+            left: -0.7rem;
+          }
+          .tooltip-pointer::after {
+            background-color: $color-white;;
+          }
+        }
+      }
+      .map-legend-header__body {
+        .map-legend-header__body-toggle-button__container {
+            padding-bottom: 0.65rem;
+            label {
+              font-size: 1.42rem;
+              input {
+                margin-right: 1.1rem;
+              }
+            }
+            &:last-child {
+              padding-bottom: 0;
+            }
+        }
+      }
+    }
+    .map-legend-body {
         @include unstyled-list;
+        padding: 0.65rem $global-pad;
         li {
             margin-bottom: rem(10);
             &:last-child {
@@ -35,4 +73,16 @@
             }
         }
     }
+    .map-legend-body-covid19 {
+      text-align: center;
+      @include unstyled-list;
+      padding: 0.65rem $global-pad;
+      .map-legend-gradient {
+        background: linear-gradient(rgba(1, 43, 58, 1), #FFF);
+        height: rem(100);
+        width: rem(20);
+        margin: rem(7) auto;
+        border: rem(0.1) solid lightslategray;
+      };
+  }
 }

@@ -19,6 +19,7 @@ const propTypes = {
     awardAmounts: AWARD_AGGREGATED_AMOUNTS_PROPS,
     inFlight: PropTypes.bool,
     error: PropTypes.bool,
+    showFileC: PropTypes.bool,
     jumpToSection: PropTypes.func
 };
 
@@ -55,7 +56,11 @@ export default class AggregatedAwardAmounts extends React.Component {
             <div className="award-amounts__content">
                 <AwardsBanner
                     jumpToReferencedAwardsTable={this.jumpToReferencedAwardsTable} />
-                <AwardAmountsChart awardOverview={awardAmounts} awardType="idv" spendingScenario={spendingScenario} />
+                <AwardAmountsChart
+                    showCaresActViz={this.props.showFileC}
+                    awardOverview={awardAmounts}
+                    awardType="idv"
+                    spendingScenario={spendingScenario} />
                 <div className="award-amounts-children__data-wrapper">
                     <div className="award-amounts-children__data-content">
                         <div>Count of Total Award Orders</div>
@@ -72,8 +77,15 @@ export default class AggregatedAwardAmounts extends React.Component {
                         <span>{formatNumber(awardAmounts.grandchildAwardCount)}</span>
                     </div>
                 </div>
-                <JumpToSectionButton linkText="View award orders table" onClick={this.jumpToReferencedAwardsTable} icon="table" />
-                <AwardAmountsTable awardAmountType="idv_aggregated" awardData={awardAmounts} spendingScenario={spendingScenario} />
+                <JumpToSectionButton
+                    linkText="View award orders table"
+                    onClick={this.jumpToReferencedAwardsTable}
+                    icon="table" />
+                <AwardAmountsTable
+                    awardAmountType="idv_aggregated"
+                    showFileC={this.props.showFileC}
+                    awardData={awardAmounts}
+                    spendingScenario={spendingScenario} />
             </div>
         );
     }

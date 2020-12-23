@@ -15,7 +15,16 @@ import SearchAwardsOperation from 'models/search/SearchAwardsOperation';
 import { mockActions, mockRedux, mockTabCount } from './mockAwards';
 import { encodedAwardId } from "../../../mockData";
 
-jest.mock('helpers/searchHelper', () => require('../filters/searchHelper'));
+const defaultProps = {
+    location: {
+        pathname: '/search'
+    }
+};
+
+jest.mock('helpers/searchHelper', () => ({
+    ...jest.requireActual('helpers/searchHelper'),
+    ...require('../filters/searchHelper')
+}));
 
 // mock the child component by replacing it with a function that returns a null element
 jest.mock('components/search/table/ResultsTableSection', () =>
@@ -30,8 +39,9 @@ jest.mock('helpers/textMeasurement', () => (
 ));
 
 describe('ResultsTableContainer', () => {
-    it('should pick a default tab whenever the Redux filters change', async () => {
+    it('should pick a default tab whenever the Redux filters change & hash is present', async () => {
         const container = mount(<ResultsTableContainer
+            location={{ pathname: '/search/123 ' }}
             {...mockActions}
             {...mockRedux} />);
 
@@ -41,17 +51,16 @@ describe('ResultsTableContainer', () => {
         const newFilters = Object.assign({}, mockRedux.filters, {
             timePeriodFY: new Set(['1987'])
         });
-        container.setProps({
-            filters: newFilters
-        });
+        container.setProps({ filters: newFilters });
 
         await container.instance().tabCountRequest.promise;
 
         expect(container.instance().parseTabCounts).toHaveBeenCalledTimes(2);
     });
 
-    it('should pick a default tab whenever the subaward toggle changes', async () => {
+    it('should pick a default tab whenever the subaward toggle changes & hash is present', async () => {
         const container = mount(<ResultsTableContainer
+            location={{ pathname: '/search/123' }}
             {...mockActions}
             {...mockRedux} />);
 
@@ -70,6 +79,7 @@ describe('ResultsTableContainer', () => {
     describe('pickDefaultTab', () => {
         it('should call parseTabCounts() after the API responds', async () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().parseTabCounts = jest.fn();
@@ -85,6 +95,7 @@ describe('ResultsTableContainer', () => {
     describe('parseTabCounts', () => {
         it('should save the counts to state', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().switchTab = jest.fn();
@@ -95,6 +106,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should pick the first table type it encounters with a count greater than zero', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().switchTab = jest.fn();
@@ -115,6 +127,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should default to contracts if all types return a count of zero', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().switchTab = jest.fn();
@@ -135,6 +148,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should default to contracts if all types return a count of zero', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().switchTab = jest.fn();
@@ -155,6 +169,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should pick a subaward tab when subawards are enabled', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux}
                 subaward />);
@@ -173,6 +188,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should pick the first subaward tab with a non-zero number of results when subawards are enabled', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux}
                 subaward />);
@@ -191,6 +207,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should pick subcontracts when all tabs have 0 results and subawards are enabled', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux}
                 subaward />);
@@ -218,6 +235,7 @@ describe('ResultsTableContainer', () => {
                 filters
             });
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...redux} />);
             container.instance().performSearch = jest.fn();
@@ -230,6 +248,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should reset the page to 1', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().performSearch = jest.fn();
@@ -239,6 +258,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should trigger a reset search', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().performSearch = jest.fn();
@@ -254,6 +274,7 @@ describe('ResultsTableContainer', () => {
         it('should generate a column object in React state for every table type', () => {
             const expectedKeys = ['contracts', 'grants', 'direct_payments', 'loans', 'other', 'idvs', 'subcontracts', 'subgrants'];
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
 
@@ -265,6 +286,7 @@ describe('ResultsTableContainer', () => {
 
         it('should generate a column object that contains an array representing the order columns should appear in the table', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
 
@@ -277,22 +299,78 @@ describe('ResultsTableContainer', () => {
     describe('createColumn', () => {
         it('should return a column object', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
 
-            const output = container.instance().createColumn('Test Display Name', 'Test Column');
+            const mockColumnData = {
+                title: 'Test Column',
+                displayName: 'Test Display Name',
+                subtitle: '(Test Subtitle)',
+                background: '#eeeeee'
+            };
+
+            const output = container.instance().createColumn(mockColumnData);
             expect(output).toEqual({
                 columnName: 'Test Column',
                 displayName: 'Test Display Name',
                 width: 220,
-                defaultDirection: 'desc'
+                defaultDirection: 'desc',
+                background: '#eeeeee',
+                subtitle: '(Test Subtitle)'
             });
+        });
+        it('should respect a provided custom width', () => {
+            const container = shallow(<ResultsTableContainer
+                {...defaultProps}
+                {...mockActions}
+                {...mockRedux} />);
+
+            const mockColumnData = {
+                title: 'Test Column',
+                displayName: 'Test Display Name',
+                customWidth: 123
+            };
+
+            const output = container.instance().createColumn(mockColumnData);
+            expect(output.width).toEqual(123);
+        });
+        it('should default to the empty string when no subtitle is provided', () => {
+            const container = shallow(<ResultsTableContainer
+                {...defaultProps}
+                {...mockActions}
+                {...mockRedux} />);
+
+            const mockColumnData = {
+                title: 'Test Column',
+                displayName: 'Test Display Name'
+            };
+
+            const output = container.instance().createColumn(mockColumnData);
+            expect(output.subtitle).toBeFalsy();
+            expect(output.subtitle).toEqual('');
+        });
+        it('should default to the empty string when no background color is provided', () => {
+            const container = shallow(<ResultsTableContainer
+                {...defaultProps}
+                {...mockActions}
+                {...mockRedux} />);
+
+            const mockColumnData = {
+                title: 'Test Column',
+                displayName: 'Test Display Name'
+            };
+
+            const output = container.instance().createColumn(mockColumnData);
+            expect(output.background).toBeFalsy();
+            expect(output.background).toEqual('');
         });
     });
 
     describe('performSearch', () => {
         it('should overwrite the existing result state if the page number is 1 or it is a new search', async () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
 
@@ -313,6 +391,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should append the results to the existing result state if the page number is greater than 1', async () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
 
@@ -335,6 +414,7 @@ describe('ResultsTableContainer', () => {
 
         it('should encode the award ID', async () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
 
@@ -356,6 +436,7 @@ describe('ResultsTableContainer', () => {
     describe('loadNextPage', () => {
         it('should increment the page number', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.setState({
@@ -371,6 +452,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should call an appended performSearch', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().performSearch = jest.fn();
@@ -386,6 +468,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should do nothing if it is the last page', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().performSearch = jest.fn();
@@ -401,6 +484,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should do nothing if there are existing requests in flight', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().performSearch = jest.fn();
@@ -419,6 +503,7 @@ describe('ResultsTableContainer', () => {
     describe('switchTab', () => {
         it('should change the state to the new tab type', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.setState({
@@ -435,6 +520,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should should call a reset performSearch operation', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.setState({
@@ -453,6 +539,7 @@ describe('ResultsTableContainer', () => {
 
         it('should use the default sort field and sort direction if the new table type doesn\'t have current sort column', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.setState({
@@ -478,6 +565,7 @@ describe('ResultsTableContainer', () => {
     describe('updateSort', () => {
         it('should set the sort state to the given values', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.setState({
@@ -496,6 +584,7 @@ describe('ResultsTableContainer', () => {
         });
         it('should call a reset performSearch operation', () => {
             const container = shallow(<ResultsTableContainer
+                {...defaultProps}
                 {...mockActions}
                 {...mockRedux} />);
             container.instance().performSearch = jest.fn();

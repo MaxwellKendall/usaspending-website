@@ -8,7 +8,7 @@ import kGlobalConstants from 'GlobalConstants';
 const Analytics = {
     _prefix: 'USAspending - ',
     _execute(...args) {
-        if (this.isDAP && !kGlobalConstants.DEV) {
+        if (this.isDAP && !kGlobalConstants.DEV && !kGlobalConstants.QAT) {
             window.gas(...args);
         }
         if (this.isGA) {
@@ -26,32 +26,53 @@ const Analytics = {
         if (!args.category || !args.action) {
             return;
         }
-        // Use the test tracker for non-prod environments
-        const tracker = kGlobalConstants.DEV ? 'testTracker.send' : 'send';
-        this._execute(
-            tracker,
-            'event',
-            `${this._prefix}${args.category}`,
-            args.action,
-            args.label || undefined,
-            args.value || undefined,
-            args.nonInteraction || undefined
-        );
-    },
-    pageview(args) {
-        let path = args;
-        let title;
-        // Use the test tracker for non-prod environments
-        const tracker = kGlobalConstants.DEV ? 'testTracker.send' : 'send';
-        if (typeof args === 'object') {
-            ({ path, title } = args);
+        if (kGlobalConstants.DEV || kGlobalConstants.QAT) {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'event',
+                eventProps: {
+                    category: `${this._prefix}${args.category}`,
+                    action: args.action,
+                    label: args.label || undefined,
+                    value: args.value || undefined,
+                    nonInteraction: args.nonInteraction || undefined
+                }
+            });
         }
-        this._execute(
-            tracker,
-            'pageview',
-            path,
-            title
-        );
+        else {
+            this._execute(
+                'send',
+                'event',
+                `${this._prefix}${args.category}`,
+                args.action,
+                args.label || undefined,
+                args.value || undefined,
+                args.nonInteraction || undefined
+            );
+        }
+    },
+    pageview(pathname, pagename) {
+        if (kGlobalConstants.DEV || kGlobalConstants.QAT) {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'pageview',
+                page: {
+                    url: pathname,
+                    title: pagename
+                }
+            });
+        }
+        else {
+            this._execute(
+                'set',
+                { title: pagename }
+            );
+            this._execute(
+                'send',
+                'pageview',
+                pathname
+            );
+        }
     }
 };
 

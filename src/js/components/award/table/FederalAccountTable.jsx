@@ -6,7 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { idvTableMapping, nonIdvTableMapping } from 'dataMapping/awards/federalAccountFunding';
+import { idvTableMapping, nonIdvTableMapping } from 'dataMapping/award/federalAccountFunding';
 import { measureTableHeader } from 'helpers/textMeasurement';
 
 import ResultsTableNoResults from 'components/search/table/ResultsTableNoResults';
@@ -81,21 +81,21 @@ export default class FedAccountTable extends React.Component {
         const isLast = columnIndex === this.tableMapping.table._order.length - 1;
         let link;
         if (column === 'id') {
-            link = item.generatedId ? `#/award/${item.generatedId}` : null;
+            link = item.generatedId ? `award/${item.generatedId}` : null;
         }
         if (column === 'agency') {
-            link = item.fundingAgencyId ? `#/agency/${item.fundingAgencyId}` : null;
+            link = item.fundingAgencyId ? `agency/${item.fundingAgencyId}` : null;
         }
         if (column === 'fedAccount') {
             if (category === 'idv') {
-                link = item.accountNumber ? `#/federal_account/${item.accountNumber}` : null;
+                link = item.accountNumber ? `federal_account/${item.accountNumber}` : null;
             }
             else {
-                link = item.federalAccountCode ? `#/federal_account/${item.federalAccountCode}` : null;
+                link = item.federalAccountCode ? `federal_account/${item.federalAccountCode}` : null;
             }
         }
         if (column === 'awardingAgencyName') {
-            link = item.awardingAgencyId ? `#/agency/${item.awardingAgencyId}` : null;
+            link = item.awardingAgencyId ? `agency/${item.awardingAgencyId}` : null;
         }
         return (
             <FederalAccountTableGenericCell

@@ -5,7 +5,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import reactStringReplace from 'react-string-replace';
+import replaceString from 'helpers/replaceString';
+import { Link } from 'react-router-dom';
 
 const propTypes = {
     name: PropTypes.string,
@@ -20,21 +21,15 @@ export default class AccountLinkCell extends React.Component {
         let name = this.props.name;
         // highlight the matched string if applicable
         if (this.props.accountSearchString) {
-            name = reactStringReplace(this.props.name, this.props.accountSearchString, (match, i) => (
-                <span
-                    className="results-table-cell__matched results-table-cell__matched_highlight"
-                    key={match + i}>
-                    {match}
-                </span>
-            ));
+            name = replaceString(this.props.name, this.props.accountSearchString, "results-table-cell__matched results-table-cell__matched_highlight");
         }
 
         return (
             <div className={`results-table-cell results-table-cell_column_${this.props.column}`}>
                 <div className="results-table-cell__content">
-                    <a href={`/#/federal_account/${this.props.accountNumber}`}>
+                    <Link to={`/federal_account/${this.props.accountNumber}`}>
                         {name}
-                    </a>
+                    </Link>
                 </div>
             </div>
         );

@@ -12,10 +12,10 @@ import * as MetaTagHelper from 'helpers/metaTagHelper';
 import FullDownloadModalContainer from
     'containers/search/modals/fullDownload/FullDownloadModalContainer';
 import Footer from 'containers/Footer';
+import Header from 'containers/shared/HeaderContainer';
 import DownloadButton from 'components/search/header/DownloadButton';
 
 import MetaTags from '../sharedComponents/metaTags/MetaTags';
-import Header from '../sharedComponents/header/Header';
 import StickyHeader from '../sharedComponents/stickyHeader/StickyHeader';
 import SearchSidebar from './SearchSidebar';
 import SearchResults from './SearchResults';
@@ -25,7 +25,6 @@ const propTypes = {
     download: PropTypes.object,
     clearAllFilters: PropTypes.func,
     filters: PropTypes.object,
-    lastUpdate: PropTypes.string,
     downloadAvailable: PropTypes.bool,
     downloadInFlight: PropTypes.bool,
     requestsComplete: PropTypes.bool,
@@ -166,7 +165,6 @@ export default class SearchPage extends React.Component {
                             showMobileFilters={this.state.showMobileFilters}
                             updateFilterCount={this.updateFilterCount}
                             toggleMobileFilters={this.toggleMobileFilters}
-                            lastUpdate={this.props.lastUpdate}
                             requestsComplete={this.props.requestsComplete}
                             noFiltersApplied={this.props.noFiltersApplied} />
                     </div>

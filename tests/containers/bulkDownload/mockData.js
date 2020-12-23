@@ -81,9 +81,14 @@ export const mockSubAgencies = [
     }
 ];
 
-export const mockRedux = {
-    params: {
-        type: ''
+export const mockProps = {
+    match: {
+        params: {
+            type: ''
+        }
+    },
+    history: {
+        replace: jest.fn()
     },
     bulkDownload: {
         dataType: 'awards',
@@ -99,6 +104,7 @@ export const mockRedux = {
             subAgency: {
                 name: 'Mock Sub-Agency'
             },
+            agencyType: 'funding_agency',
             locationType: 'recipient_location',
             location: {
                 country: {
@@ -115,6 +121,7 @@ export const mockRedux = {
                 startDate: '11-01-2016',
                 endDate: '11-01-2017'
             },
+            defCodes: ["L", "M", "N", "O", "P"],
             columns: [],
             fileFormat: 'csv'
         },
@@ -137,7 +144,9 @@ export const mockRedux = {
                 name: 'Mock Agency'
             },
             fy: '1989',
+            defCodes: ["L", "M", "N", "O", "P"],
             quarter: '1',
+            period: '',
             submissionTypes: ['accountBalances'],
             fileFormat: 'csv'
         },
@@ -165,7 +174,7 @@ export const mockAwardDownloadResponse = {
     file_name: 'mock_file.zip',
     file_url: 'mockurl/mock_file.zip',
     status_url: 'download/status?file_name=mock_file.zip',
-    download_request: {download_details: 'for award'}
+    download_request: { download_details: 'for award' }
 };
 
 export const mockArchiveResponse = {

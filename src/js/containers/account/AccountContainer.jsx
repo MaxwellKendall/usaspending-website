@@ -8,15 +8,16 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { isCancel } from 'axios';
+import { withRouter } from 'react-router-dom';
 
 import * as AccountHelper from 'helpers/accountHelper';
-import * as FiscalYearHelper from 'helpers/fiscalYearHelper';
 import * as accountActions from 'redux/actions/account/accountActions';
 import * as filterActions from 'redux/actions/account/accountFilterActions';
 
 import FederalAccount from 'models/account/FederalAccount';
 import { fiscalYearSnapshotFields } from 'dataMapping/accounts/accountFields';
 
+import WithLatestFy from 'containers/account/WithLatestFy';
 import Account from 'components/account/Account';
 import InvalidAccount from 'components/account/InvalidAccount';
 import LoadingAccount from 'components/account/LoadingAccount';
@@ -24,8 +25,9 @@ import LoadingAccount from 'components/account/LoadingAccount';
 require('pages/account/accountPage.scss');
 
 const propTypes = {
+    currentFiscalYear: PropTypes.string,
     account: PropTypes.object,
-    params: PropTypes.object,
+    match: PropTypes.object,
     setSelectedAccount: PropTypes.func
 };
 
@@ -49,12 +51,15 @@ export class AccountContainer extends React.Component {
     }
 
     componentDidMount() {
-        this.loadData(this.props.params.accountNumber);
+        this.loadData(this.props.match.params.accountNumber);
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.params.accountNumber !== this.props.params.accountNumber) {
-            this.loadData(this.props.params.accountNumber);
+        if (prevProps.match.params.accountNumber !== this.props.match.params.accountNumber) {
+            this.loadData(this.props.match.params.accountNumber);
+        }
+        if (!prevProps.currentFiscalYear && this.props.currentFiscalYear && this.props.account) {
+            this.loadFiscalYearSnapshot(this.props.account.id);
         }
     }
 
@@ -107,7 +112,7 @@ export class AccountContainer extends React.Component {
             this.fiscalYearSnapshotRequest.cancel();
         }
 
-        const currentFiscalYear = FiscalYearHelper.defaultFiscalYear();
+        const { currentFiscalYear } = this.props;
 
         this.fiscalYearSnapshotRequest = AccountHelper.fetchFederalAccountFYSnapshot(
             id,
@@ -171,6 +176,7 @@ export class AccountContainer extends React.Component {
 }
 
 AccountContainer.propTypes = propTypes;
+const AccountContainerWithRouter = withRouter(AccountContainer);
 
 export default connect(
     (state) => ({
@@ -178,4 +184,8 @@ export default connect(
         tas: state.account.tas
     }),
     (dispatch) => bindActionCreators(combinedActions, dispatch)
-)(AccountContainer);
+)((props) => (
+    <WithLatestFy propName="currentFiscalYear" format="YYYY">
+        <AccountContainerWithRouter {...props} />
+    </WithLatestFy>
+));

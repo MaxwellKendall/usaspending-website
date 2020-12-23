@@ -219,4 +219,116 @@ describe('Month helper functions', () => {
             expect(year).toEqual(FiscalYearHelper.currentFiscalYear());
         });
     });
+
+    describe('convertPeriodToDate', () => {
+        it('should convert {"1", "2017"}  to "October 2016"', () => {
+            const date = MonthHelper.convertPeriodToDate("1", "2017");
+            expect(date).toEqual("October 2016");
+        });
+
+        it('should convert {"2", "2017"}  to "November 2016"', () => {
+            const date = MonthHelper.convertPeriodToDate("2", "2017");
+            expect(date).toEqual("November 2016");
+        });
+
+        it('should convert {"3", "2017"}  to "December 2016"', () => {
+            const date = MonthHelper.convertPeriodToDate("3", "2017");
+            expect(date).toEqual("December 2016");
+        });
+
+        it('should convert {"4", "2017"}  to "January 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("4", "2017");
+            expect(date).toEqual("January 2017");
+        });
+
+        it('should convert {"5", "2017"}  to "February 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("5", "2017");
+            expect(date).toEqual("February 2017");
+        });
+
+        it('should convert {"6", "2017"}  to "March 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("6", "2017");
+            expect(date).toEqual("March 2017");
+        });
+
+        it('should convert {"7", "2017"}  to "April 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("7", "2017");
+            expect(date).toEqual("April 2017");
+        });
+
+        it('should convert {"8", "2017"}  to "May 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("8", "2017");
+            expect(date).toEqual("May 2017");
+        });
+
+        it('should convert {"9", "2017"}  to "June 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("9", "2017");
+            expect(date).toEqual("June 2017");
+        });
+
+        it('should convert {"10", "2017"}  to "July 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("10", "2017");
+            expect(date).toEqual("July 2017");
+        });
+
+        it('should convert {"11", "2017"}  to "August 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("11", "2017");
+            expect(date).toEqual("August 2017");
+        });
+
+        it('should convert {"12", "2017"}  to "September 2017"', () => {
+            const date = MonthHelper.convertPeriodToDate("12", "2017");
+            expect(date).toEqual("September 2017");
+        });
+    });
+
+    describe('fullMonthFromAbbr', () => {
+        it('should convert "Jan" to "January"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Jan")).toEqual("January");
+        });
+
+        it('should convert "Feb" to "February"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Feb")).toEqual("February");
+        });
+
+        it('should convert "Mar" to "March"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Mar")).toEqual("March");
+        });
+
+        it('should convert "Apr" to "April"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Apr")).toEqual("April");
+        });
+
+        it('should convert "May" to "May"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("May")).toEqual("May");
+        });
+
+        it('should convert "Jun" to "June"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Jun")).toEqual("June");
+        });
+
+        it('should convert "Jul" to "July"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Jul")).toEqual("July");
+        });
+
+        it('should convert "Aug" to "August"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Aug")).toEqual("August");
+        });
+
+        it('should convert "Sep" to "September"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Sep")).toEqual("September");
+        });
+
+        it('should convert "Oct" to "October"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Oct")).toEqual("October");
+        });
+
+        it('should convert "Nov" to "November"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Nov")).toEqual("November");
+        });
+
+        it('should convert "Dec" to "December"', () => {
+            expect(MonthHelper.fullMonthFromAbbr("Dec")).toEqual("December");
+        });
+    });
 });

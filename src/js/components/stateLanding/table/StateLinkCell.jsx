@@ -5,7 +5,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import reactStringReplace from 'react-string-replace';
+import replaceString from 'helpers/replaceString';
+import { Link } from 'react-router-dom';
 
 const propTypes = {
     name: PropTypes.string,
@@ -18,20 +19,14 @@ export default class StateLinkCell extends React.Component {
         let name = this.props.name;
         // highlight the matched string if applicable
         if (this.props.searchString !== '') {
-            name = reactStringReplace(this.props.name, this.props.searchString, (match, i) => (
-                <span
-                    className="state-list__matched"
-                    key={match + i}>
-                    {match}
-                </span>
-            ));
+            name = replaceString(this.props.name, this.props.searchString, "state-list__matched");
         }
 
         return (
             <td className="state-list__body-cell">
-                <a href={`#/state/${this.props.fips}`}>
+                <Link to={`/state/${this.props.fips}`}>
                     {name}
-                </a>
+                </Link>
             </td>
         );
     }
