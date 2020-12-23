@@ -31,5 +31,9 @@ module.exports = {
     },
     transformIgnorePatterns: [
         "node_modules/(?!(data-transparency-ui))"
+    ],
+    reporters: [
+        "default",
+        "jest-junit"
     ]
 };
