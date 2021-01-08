@@ -170,7 +170,7 @@
                 h5 {
                     @include flex-wrap(wrap);
                     font-size: rem(16);
-                    font-weight: 600;
+                    font-weight: $font-semibold;
                     line-height: rem(20);
                     margin: rem(5) 0;
                 }
